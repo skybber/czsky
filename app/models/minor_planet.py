@@ -50,6 +50,9 @@ class MinorPlanet(db.Model):
     orbit_type = db.Column(db.SmallInteger)
     is_neo = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false(), index=True)
     is_pha = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false(), index=True)
+    # Set only when the daily NEA update created the row (UTC); such rows may be deleted
+    # again once unused. Rows from the initial import or a user search stay null.
+    neo_imported_at = db.Column(db.DateTime)
 
     def url_id(self):
         if self.int_designation is not None:

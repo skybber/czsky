@@ -17,8 +17,18 @@ from skyfield.api import load
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.data import mpc
 
+from sqlalchemy import exists
+
 from app import db
-from app.models import DB_UPDATE_NEO_KEY, MinorPlanet, NeoCloseApproach
+from app.models import (
+    DB_UPDATE_NEO_KEY,
+    MinorPlanet,
+    NeoCloseApproach,
+    Observation,
+    ObservedListItem,
+    SessionPlanItem,
+    UserObjectListItem,
+)
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 from app.commons.minor_planet_utils import ensure_nea_file, get_all_mpc_minor_planets, update_neo_positions
 from imports.import_minor_planets import assign_minor_planet_from_mpc_row, _int_designation_from_mpc_row
@@ -38,6 +48,10 @@ NEO_PREFILTER_MAG_MARGIN = 0.5
 # approaches the phase angle, not the distance, decides), refined in steps:
 # (half window, step) in minutes.
 NEO_PEAK_SEARCH_STAGES = ((30 * 24 * 60, 6 * 60), (6 * 60, 15), (15, 1))
+# Past approaches are not shown anywhere; keep them a while, then delete.
+NEO_APPROACH_HISTORY = timedelta(days=30)
+# Asteroids imported by the NEA update are deleted again when unused for this long.
+NEO_IMPORT_RETENTION = timedelta(days=30)
 # Daily job: the claim must expire before the next run (interval minus jitter).
 NEO_UPDATE_LOCK_DURATION = timedelta(hours=20)
 
@@ -205,7 +219,7 @@ def build_designation_index(mpc_minor_planets):
     return index
 
 
-def _get_or_create_minor_planet(mpc_row):
+def _get_or_create_minor_planet(mpc_row, now):
     mpc_designation = str(mpc_row['designation_packed']).strip()
     minor_planet = MinorPlanet.query.filter_by(mpc_designation=mpc_designation).first()
     if minor_planet is None:
@@ -213,7 +227,8 @@ def _get_or_create_minor_planet(mpc_row):
         if int_designation is not None:
             minor_planet = MinorPlanet.query.filter_by(int_designation=int_designation).first()
     if minor_planet is None:
-        minor_planet = MinorPlanet()
+        # Marked as imported by this update, so cleanup_neo_data() may delete it once unused.
+        minor_planet = MinorPlanet(neo_imported_at=now)
         db.session.add(minor_planet)
     assign_minor_planet_from_mpc_row(minor_planet, mpc_row)
     return minor_planet
@@ -261,7 +276,7 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
             if (peak_mag if peak_mag is not None else est_peak_mag) > mag_limit:
                 continue
             if packed is not None:
-                minor_planet = _get_or_create_minor_planet(mpc_row)
+                minor_planet = _get_or_create_minor_planet(mpc_row, window_start)
             else:
                 unmatched.append(approach['designation'])
             new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=est_peak_mag,
@@ -284,6 +299,36 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
     return new_rows
 
 
+def cleanup_neo_data(now):
+    """
+    Deletes approaches older than NEO_APPROACH_HISTORY and asteroids imported by the NEA update
+    more than NEO_IMPORT_RETENTION ago that nothing references any more (no approach, observation,
+    observed list, user list or session plan item). Rows from the initial import or a user search
+    (neo_imported_at null) are never deleted. One transaction.
+    """
+    try:
+        deleted_approaches = NeoCloseApproach.query \
+            .filter(NeoCloseApproach.approach_time < now - NEO_APPROACH_HISTORY) \
+            .delete(synchronize_session=False)
+        unused = MinorPlanet.query.filter(
+            MinorPlanet.neo_imported_at.isnot(None),
+            MinorPlanet.neo_imported_at < now - NEO_IMPORT_RETENTION,
+            ~exists().where(NeoCloseApproach.minor_planet_id == MinorPlanet.id),
+            ~exists().where(Observation.minor_planet_id == MinorPlanet.id),
+            ~exists().where(ObservedListItem.minor_planet_id == MinorPlanet.id),
+            ~exists().where(UserObjectListItem.minor_planet_id == MinorPlanet.id),
+            ~exists().where(SessionPlanItem.minor_planet_id == MinorPlanet.id),
+        )
+        deleted_minor_planets = unused.delete(synchronize_session=False)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+    current_app.logger.info('Deleted {} old NEA close approaches and {} unused imported asteroids.'.format(
+        deleted_approaches, deleted_minor_planets))
+    return deleted_approaches, deleted_minor_planets
+
+
 def update_neos(force=False):
     """
     Daily update: NEA.txt, close approaches from CNEOS, then NEA elements, positions and brightness.
@@ -304,4 +349,5 @@ def update_neos(force=False):
     else:
         store_close_approaches(approaches, window_start)
     update_neo_positions(update_elements=True)
+    cleanup_neo_data(window_start)
     return True

@@ -10,6 +10,7 @@ import uuid
 from functools import lru_cache
 from datetime import datetime, timedelta
 
+from sqlalchemy import exists
 from sqlalchemy.exc import IntegrityError
 
 from skyfield.api import load, wgs84
@@ -23,7 +24,7 @@ from flask import (
     current_app,
 )
 
-from app.models import Constellation, MinorPlanet
+from app.models import Constellation, MinorPlanet, NeoCloseApproach
 
 from app import db
 
@@ -382,11 +383,16 @@ def update_minor_planets_elements_from_mpc(show_progress=False):
     current_app.logger.info('Minor planets elements updated from MPC.')
 
 
+# NEAs whose approach passed less than this long ago are still recomputed hourly.
+NEO_POSITIONS_APPROACH_PAST = timedelta(days=1)
+
+
 def update_neo_positions(update_elements=False):
     """
-    Recomputes position and brightness of near-Earth asteroids only (hundreds of rows,
-    cheap enough to run hourly). With update_elements also copies their current elements
-    from the elements file (NEA.txt takes precedence) into the DB.
+    Recomputes position and brightness of near-Earth asteroids with a listed close approach
+    (tens of rows, cheap enough to run hourly). Other NEAs are recomputed with all minor
+    planets daily. With update_elements also copies their current elements from the elements
+    file (NEA.txt takes precedence) into the DB.
     """
     get_all_mpc_minor_planets()
 
@@ -397,7 +403,12 @@ def update_neo_positions(update_elements=False):
     _, _, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
     constellation_at = load_constellation_map()
 
-    neos = MinorPlanet.query.filter(MinorPlanet.is_neo.is_(True)).all()
+    approach_since = datetime.utcnow() - NEO_POSITIONS_APPROACH_PAST
+    neos = MinorPlanet.query.filter(
+        MinorPlanet.is_neo.is_(True),
+        exists().where(NeoCloseApproach.minor_planet_id == MinorPlanet.id,
+                       NeoCloseApproach.approach_time >= approach_since),
+    ).all()
     updated = 0
     try:
         for minor_planet in neos:

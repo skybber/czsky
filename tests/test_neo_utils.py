@@ -372,11 +372,18 @@ class UpdateNeosTestCase(NeoDbTestCase):
 
 
 class UpdateNeoPositionsTestCase(NeoDbTestCase):
-    def test_updates_only_near_earth_asteroids(self):
+    def test_updates_only_near_earth_asteroids_with_listed_approach(self):
+        eros = MinorPlanet(int_designation=433, mpc_designation='00433', magnitude_H=99.0, magnitude_G=0.15,
+                           hex_flags='1804', is_neo=True)
+        apollo = MinorPlanet(int_designation=1862, mpc_designation='01862', magnitude_H=99.0, magnitude_G=0.15,
+                             hex_flags='9803', is_neo=True)  # NEA without a listed approach
         db.session.add_all([
             MinorPlanet(int_designation=1, mpc_designation='00001', magnitude_H=3.33, magnitude_G=0.15),
-            MinorPlanet(int_designation=433, mpc_designation='00433', magnitude_H=99.0, magnitude_G=0.15,
-                        hex_flags='1804', is_neo=True),
+            eros, apollo,
+            NeoCloseApproach(designation='433', minor_planet=eros, approach_time=datetime.utcnow() + timedelta(days=5),
+                             dist_au=0.2),
+            NeoCloseApproach(designation='1862', minor_planet=apollo,
+                             approach_time=datetime.utcnow() - timedelta(days=3), dist_au=0.2),  # passed
         ])
         db.session.commit()
 
@@ -386,9 +393,54 @@ class UpdateNeoPositionsTestCase(NeoDbTestCase):
         ceres = MinorPlanet.query.filter_by(mpc_designation='00001').one()
         eros = MinorPlanet.query.filter_by(mpc_designation='00433').one()
         self.assertIsNone(ceres.cur_ra)
+        self.assertIsNone(MinorPlanet.query.filter_by(mpc_designation='01862').one().cur_ra)
         self.assertIsNotNone(eros.cur_ra)
         self.assertIsNotNone(eros.eval_mag)
         self.assertEqual(eros.magnitude_H, 10.39)  # elements refreshed from NEA.txt
+
+
+class CleanupNeoDataTestCase(NeoDbTestCase):
+    def test_deletes_old_approaches_and_unused_imported_asteroids(self):
+        from app.models import ObservedListItem, SessionPlanItem
+        now = datetime(2026, 10, 20, 12, 0)
+        old_import = now - timedelta(days=40)
+
+        def planet(designation, imported_at):
+            return MinorPlanet(mpc_designation=designation, designation=designation, neo_imported_at=imported_at,
+                               is_neo=True)
+
+        unused = planet('UNUSED', old_import)
+        recent_import = planet('RECENT', now - timedelta(days=5))
+        with_approach = planet('APPROACH', old_import)
+        observed = planet('OBSERVED', old_import)
+        planned = planet('PLANNED', old_import)
+        user_search = planet('SEARCH', None)  # imported by a user search or the initial import
+        db.session.add_all([unused, recent_import, with_approach, observed, planned, user_search])
+        db.session.flush()
+        db.session.add_all([
+            NeoCloseApproach(designation='OLD', minor_planet=unused, approach_time=now - timedelta(days=31), dist_au=0.1),
+            NeoCloseApproach(designation='KEPT', minor_planet=with_approach, approach_time=now - timedelta(days=29),
+                             dist_au=0.1),
+            ObservedListItem(observed_list_id=1, minor_planet_id=observed.id),
+            SessionPlanItem(session_plan_id=1, minor_planet_id=planned.id),
+        ])
+        db.session.commit()
+
+        self.assertEqual(neo_utils.cleanup_neo_data(now), (1, 1))
+
+        self.assertEqual([a.designation for a in NeoCloseApproach.query.all()], ['KEPT'])
+        self.assertEqual(sorted(mp.mpc_designation for mp in MinorPlanet.query.all()),
+                         ['APPROACH', 'OBSERVED', 'PLANNED', 'RECENT', 'SEARCH'])
+
+    def test_store_marks_only_newly_created_rows_as_imported(self):
+        db.session.add(MinorPlanet(int_designation=1862, mpc_designation='01862'))
+        db.session.commit()
+
+        store_close_approaches([self._approach('1862', h=16.1), self._approach('2026 UK', h=24.8)], self.window_start)
+
+        self.assertIsNone(MinorPlanet.query.filter_by(mpc_designation='01862').one().neo_imported_at)
+        self.assertEqual(MinorPlanet.query.filter_by(mpc_designation='K26U00K').one().neo_imported_at,
+                         self.window_start)
 
 
 class MinorPlanetsChartSceneTestCase(NeoDbTestCase):
