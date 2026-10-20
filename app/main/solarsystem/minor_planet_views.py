@@ -87,7 +87,10 @@ from app.commons.minor_planet_utils import (
     ensure_full_mpcorb_file,
     rebuild_mpcorb_excerpt,
     find_mpc_minor_planet,
+    get_minor_planet_body,
     get_minor_planet_radec,
+    horizons_coverage_utc,
+    minor_planet_ephemeris,
     import_minor_planet_by_designation,
     reset_minor_planets_cache,
     update_minor_planets_positions,
@@ -459,7 +462,7 @@ def minor_planet_info(minor_planet_id):
 
     mpc_minor_planet = find_mpc_minor_planet(minor_planet)
 
-    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    body = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
 
     common_prepare_date_from_to(form)
 
@@ -563,22 +566,43 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     return jsonify(scene)
 
 
+def _clip_to_horizons_coverage(d1, d2, coverage):
+    """
+    The PDF path goes to fchart3 as one line, which cannot be interrupted where the position
+    source changes; when [d1, d2] crosses the Horizons coverage, keep only the covered part.
+    """
+    if coverage is None or d1 is None or d2 is None:
+        return d1, d2
+    start, end = (c.replace(tzinfo=None) for c in coverage)
+    if d2 <= start or d1 >= end:
+        return d1, d2  # entirely outside: the MPC orbit alone, no jump
+    return max(d1, start), min(d2, end)
+
+
 def _minor_planet_trajectory_source(minor_planet, traj_from, traj_to):
     """Topocentric trajectory source, raises TrajectoryRequestError or KeyError (unknown orbit)."""
     dt_from, dt_to = normalize_interval(traj_from, traj_to)
     mpc_minor_planet = find_mpc_minor_planet(minor_planet)
     _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
+    # One consistent version of the Horizons ephemeris for the whole path; its revision is part
+    # of the trajectory revision, and the path is interrupted where the position source changes.
+    segments, ephemeris_revision = minor_planet_ephemeris(minor_planet)
+    elements = dict(orbit_elements(mpc_minor_planet, MINOR_PLANET_ELEMENT_FIELDS),
+                    horizons_revision=ephemeris_revision)
+    coverage = horizons_coverage_utc(segments, load.timescale(builtin=True))
     return TrajectorySource(
         kind='minor_planet',
         object_id=str(minor_planet.id),
         label=minor_planet.designation,
         trajectory_id='MINOR_PLANET_TRAJ_' + str(minor_planet.id),
         trajectory_type='minor_planet',
-        elements=orbit_elements(mpc_minor_planet, MINOR_PLANET_ELEMENT_FIELDS),
-        build_body=lambda ts, sun: sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN),
+        elements=elements,
+        build_body=lambda ts, sun: get_minor_planet_body(minor_planet, ts, sun, load('de421.bsp')['earth'],
+                                                         mpc_minor_planet, segments=segments),
         observer=(float(observer_lat), float(observer_lon), 0.0),
         dt_from=dt_from,
         dt_to=dt_to,
+        breaks=coverage or (),
     )
 
 
@@ -630,7 +654,9 @@ def minor_planet_chart_pdf(minor_planet_id):
         sun, earth = eph['sun'], eph['earth']
         _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
         observer = earth + wgs84.latlon(latitude_degrees=observer_lat, longitude_degrees=observer_lon)
-        body = sun + mpc.mpcorb_orbit(find_mpc_minor_planet(minor_planet), ts, GM_SUN)
+        segments, _ = minor_planet_ephemeris(minor_planet)
+        body = get_minor_planet_body(minor_planet, ts, sun, earth, segments=segments)
+        d1, d2 = _clip_to_horizons_coverage(d1, d2, horizons_coverage_utc(segments, ts))
         trajectory = build_refinable_trajectory(d1, d2, ts, observer, body, is_comet=False)
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
@@ -651,7 +677,7 @@ def minor_planet_catalogue_data(minor_planet_id):
 
     mpc_minor_planet = find_mpc_minor_planet(minor_planet)
 
-    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    body = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
 
     t = ts.now()
 
@@ -781,7 +807,8 @@ def minor_planet_light_curve_img(minor_planet_id):
 
     cursor_dt = get_chart_datetime().astimezone(utc)
     dates = light_curve_dates(cursor_dt, parse_light_curve_range(request.args.get('range')))
-    magnitudes = eval_minor_planet_light_curve(mpc_minor_planet, minor_planet.magnitude_H, minor_planet.magnitude_G, dates)
+    magnitudes = eval_minor_planet_light_curve(mpc_minor_planet, minor_planet.magnitude_H, minor_planet.magnitude_G, dates,
+                                               minor_planet=minor_planet)
     svg = create_light_curve_svg(dates, magnitudes, cursor_dt=cursor_dt, theme=request.args.get('theme', 'dark'),
                                  title=minor_planet.designation, x_label=gettext('Date'),
                                  y_label=gettext('Magnitude'))

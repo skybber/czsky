@@ -478,6 +478,7 @@ def _create_session_plan_item(session_plan: Any, target: dict[str, Any]):
             mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(
                 minor_planet_for_position,
                 session_plan.for_date,
+                minor_planet=target_object,
             )
         except Exception:
             return None, "ephemeris_unavailable"

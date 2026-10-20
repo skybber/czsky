@@ -123,6 +123,8 @@ class NeoDbTestCase(unittest.TestCase):
             patch.object(minor_planet_utils, 'MPCORB_EXCERPT_FILE', self.excerpt_file),
             patch.object(minor_planet_utils, 'NEA_FILE', self.nea_file),
         ]
+        # No network: without a Horizons ephemeris the MPC orbit is used.
+        self.patches.append(patch.object(neo_utils, 'fetch_neo_ephemeris', return_value=[]))
         if not self.real_peak_brightness:
             self.patches.append(patch.object(neo_utils, 'compute_peak_brightness', return_value=(None, None)))
         for p in self.patches:

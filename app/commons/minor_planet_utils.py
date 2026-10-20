@@ -28,6 +28,9 @@ from app.models import Constellation, MinorPlanet, NeoCloseApproach
 
 from app import db
 
+from app.commons.horizons_utils import HybridMinorPlanetBody, segments_receive_boundaries
+from app.commons.neo_ephemeris_utils import load_neo_ephemeris
+
 from imports.import_utils import progress
 from imports.import_minor_planets import assign_minor_planet_from_mpc_row
 
@@ -123,13 +126,68 @@ def _find_mpc_minor_planet_or_none(minor_planet):
         return None
 
 
-def get_mpc_minor_planet_position(mpc_minor_planet, dt, observer_lat=None, observer_lon=None, observer_elevation=0.0):
+def minor_planet_ephemeris(minor_planet):
+    """(segments, revision) of the stored Horizons ephemeris of a NEA; ([], '') otherwise."""
+    if not getattr(minor_planet, 'is_neo', False) or getattr(minor_planet, 'id', None) is None:
+        return [], ''
+    return load_neo_ephemeris(minor_planet.id)
+
+
+def horizons_coverage_utc(segments, ts):
+    """
+    (start, end) aware UTC datetimes at which an observer on the Earth sees the position source
+    switch between MPC and Horizons: the coverage boundaries plus the light time. None without
+    segments. Used to interrupt drawn paths exactly where the observed position jumps.
+    """
+    boundaries = segments_receive_boundaries(segments)
+    if boundaries is None:
+        return None
+    return tuple(ts.tdb_jd(jd).utc_datetime() for jd in boundaries)
+
+
+def get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet=None, segments=None):
+    """
+    Skyfield body of a minor planet for all position computations: the JPL Horizons ephemeris
+    where one is stored and covers the evaluated time (NEAs), the MPC two-body orbit elsewhere.
+    Without a Horizons ephemeris this is exactly sun + mpcorb_orbit().
+    """
+    if mpc_minor_planet is None:
+        mpc_minor_planet = find_mpc_minor_planet(minor_planet)
+    orbit = mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    if segments is None:
+        segments, _ = minor_planet_ephemeris(minor_planet)
+    if not segments:
+        return sun + orbit
+    return HybridMinorPlanetBody(earth, sun, orbit, segments,
+                                 target=str(mpc_minor_planet['designation_packed']).strip())
+
+
+def sun_earth_body_distances(body, t, sun, earth):
+    """
+    Body-Sun, body-Earth and Earth-Sun distances in au from geometric positions at the same
+    instants, so they form one triangle for the phase angle (observe() would apply different
+    light times from the Earth and from the Sun, i.e. two different body positions).
+    """
+    body_pos = body.at(t).position.au
+    earth_pos = earth.at(t).position.au
+    sun_pos = sun.at(t).position.au
+    return (np.linalg.norm(body_pos - sun_pos, axis=0),
+            np.linalg.norm(body_pos - earth_pos, axis=0),
+            np.linalg.norm(earth_pos - sun_pos, axis=0))
+
+
+def get_mpc_minor_planet_position(mpc_minor_planet, dt, observer_lat=None, observer_lon=None, observer_elevation=0.0,
+                                  minor_planet=None):
+    """Astrometric RA/Dec at dt; with minor_planet a stored Horizons ephemeris is used where it applies."""
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    t = ts.from_datetime(dt.replace(tzinfo=utc))
-    skf_mplanet = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    t = ts.from_datetime(dt.replace(tzinfo=utc) if dt.tzinfo is None else dt.astimezone(utc))
+    if minor_planet is not None:
+        skf_mplanet = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
+    else:
+        skf_mplanet = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
     observer = earth
     if observer_lat is not None and observer_lon is not None:
@@ -181,6 +239,7 @@ def get_minor_planet_radec(minor_planet, dt: datetime, observer_lat=None, observ
         ra_ang, dec_ang = get_mpc_minor_planet_position(
             find_mpc_minor_planet(minor_planet), dt,
             observer_lat=observer_lat, observer_lon=observer_lon, observer_elevation=observer_elevation,
+            minor_planet=minor_planet,
         )
         return ra_ang.radians, dec_ang.radians
     normalized_dt = _normalize_to_300s(dt)
@@ -195,7 +254,7 @@ def get_minor_planet_radec(minor_planet, dt: datetime, observer_lat=None, observ
 
 def _calculate_minor_planet_current_values(minor_planet, mpc_minor_planet, ts, eph, t, constellation_at):
     sun, earth = eph['sun'], eph['earth']
-    skf_mplanet = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    skf_mplanet = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
     ra_ang, dec_ang, _ = earth.at(t).observe(skf_mplanet).radec()
     minor_planet.cur_ra = ra_ang.radians
     minor_planet.cur_dec = dec_ang.radians
@@ -227,15 +286,7 @@ def update_minor_planet_brightness(minor_planet, mpc_minor_planet=None):
     sun, earth = eph['sun'], eph['earth']
     if mpc_minor_planet is None:
         mpc_minor_planet = find_mpc_minor_planet(minor_planet)
-    _, _, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
-    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
-    _, _, sun_body_distance = sun.at(t).observe(body).radec()
-    _, _, earth_body_distance = earth.at(t).observe(body).apparent().radec()
-    apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G,
-                                                    earth_body_distance.au, sun_body_distance.au,
-                                                    earth_sun_distance.au)
-    if apparent_magnitude:
-        minor_planet.eval_mag = apparent_magnitude
+    _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t)
 
 
 def _save_minor_planets(minor_planets, show_progress, progress_title):
@@ -317,7 +368,6 @@ def update_minor_planets_brightness(show_progress=False):
 
     sun, earth = eph['sun'], eph['earth']
 
-    ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
 
     mpc_minor_planets = get_all_mpc_minor_planets()
 
@@ -327,7 +377,7 @@ def update_minor_planets_brightness(show_progress=False):
     for minor_planet in MinorPlanet.query.all():
         mpc_minor_planet = _find_mpc_minor_planet_or_none(minor_planet)
         if mpc_minor_planet is not None and _calculate_minor_planet_brightness(
-                minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance):
+                minor_planet, mpc_minor_planet, ts, sun, earth, t):
             minor_planets.append(minor_planet)
         if show_progress:
             progress(i, len(mpc_minor_planets), 'Evaluating minor planet brightness...')
@@ -339,13 +389,11 @@ def update_minor_planets_brightness(show_progress=False):
     current_app.logger.info('Minor planets\' brightnesses updated.')
 
 
-def _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance):
-    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
-    _, _, sun_body_distance = sun.at(t).observe(body).radec()
-    _, _, earth_body_distance = earth.at(t).observe(body).apparent().radec()
+def _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t):
+    body = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
+    sun_body, earth_body, earth_sun = sun_earth_body_distances(body, t, sun, earth)
     apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G,
-                                                    earth_body_distance.au, sun_body_distance.au,
-                                                    earth_sun_distance.au)
+                                                    float(earth_body), float(sun_body), float(earth_sun))
     if apparent_magnitude:
         minor_planet.eval_mag = apparent_magnitude
         return True
@@ -400,7 +448,6 @@ def update_neo_positions(update_elements=False):
     eph = load('de421.bsp')
     t = ts.now()
     sun, earth = eph['sun'], eph['earth']
-    _, _, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
     constellation_at = load_constellation_map()
 
     approach_since = datetime.utcnow() - NEO_POSITIONS_APPROACH_PAST
@@ -418,7 +465,7 @@ def update_neo_positions(update_elements=False):
             if update_elements:
                 assign_minor_planet_from_mpc_row(minor_planet, mpc_minor_planet)
             _calculate_minor_planet_current_values(minor_planet, mpc_minor_planet, ts, eph, t, constellation_at)
-            _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance)
+            _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t)
             updated += 1
         db.session.commit()
     except Exception:

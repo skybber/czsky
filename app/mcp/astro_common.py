@@ -271,7 +271,7 @@ def target_radec(object_type: str, obj: Any, dt_utc: datetime) -> tuple[float, f
     if object_type == "minor_planet":
         from app.commons.minor_planet_utils import find_mpc_minor_planet, get_mpc_minor_planet_position
 
-        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(obj), dt_utc)
+        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(obj), dt_utc, minor_planet=obj)
         return ra.radians, dec.radians
     if object_type == "planet":
         from app.commons.solar_system_chart_utils import get_mpc_planet_position

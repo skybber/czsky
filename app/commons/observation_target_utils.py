@@ -12,7 +12,7 @@ from app.commons.search_sky_object_utils import (
     search_planet,
     search_planet_moon
 )
-from app.commons.minor_planet_utils import find_mpc_minor_planet
+from app.commons.minor_planet_utils import find_mpc_minor_planet, get_minor_planet_body
 from app.commons.comet_utils import find_mpc_comet
 from app.commons.solar_system_chart_utils import create_planet_moon_obj
 
@@ -119,7 +119,7 @@ def set_observation_targets(observation, targets):
         sun, earth = eph['sun'], eph['earth']
 
         mpc_minor_planet = find_mpc_minor_planet(minor_planet)
-        c = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+        c = get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
 
         dt = observation.date_from
         t = ts.utc(dt.year, dt.month, dt.day)

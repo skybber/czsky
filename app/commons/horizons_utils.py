@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import requests
+from skyfield.constants import C_AUDAY
+from skyfield.functions import length_of
 from skyfield.vectorlib import VectorFunction
 
 HORIZONS_API_URL = 'https://ssd.jpl.nasa.gov/api/horizons.api'
@@ -253,12 +255,20 @@ def finest_segment_index(segments, jd):
     return index
 
 
-def evaluate_segments(segments, jd):
-    """Geocentric position and velocity from the finest covering segment; NaN outside all segments."""
+def evaluate_segments(segments, jd, extrapolate=False):
+    """
+    Geocentric position and velocity from the finest covering segment; outside all segments NaN,
+    or with extrapolate the polynomial of the nearest segment end (finite, meaningful only just
+    outside the coverage).
+    """
     jd = np.atleast_1d(np.asarray(jd, dtype=float))
     position = np.full((3, jd.size), np.nan)
     velocity = np.full((3, jd.size), np.nan)
     index = finest_segment_index(segments, jd)
+    if extrapolate and (index < 0).any():
+        outside = index < 0
+        gaps = np.array([np.maximum(s.start_jd - jd[outside], jd[outside] - s.end_jd) for s in segments])
+        index[outside] = np.argmin(gaps, axis=0)
     for i in np.unique(index[index >= 0]):
         mask = index == i
         position[:, mask], velocity[:, mask] = segments[i].evaluate(jd[mask])
@@ -268,15 +278,17 @@ def evaluate_segments(segments, jd):
 class GeocentricEphemeris(VectorFunction):
     """
     Skyfield vector from the geocenter to the asteroid, interpolated from Horizons segments.
-    Use as `earth + GeocentricEphemeris(segments)`; times outside the segments give NaN
-    (switching to the MPC orbit there is the caller's job).
+    Use as `earth + GeocentricEphemeris(segments)`; times outside the segments give NaN, or with
+    extrapolate the nearest segment's polynomial (needed to observe() just inside the coverage
+    edge, where the light-time iteration starts at a receive time outside it).
     """
     center = 399
     ephemeris = None
 
-    def __init__(self, segments, target='horizons'):
+    def __init__(self, segments, target='horizons', extrapolate=False):
         self.segments = segments
         self.target = target
+        self.extrapolate = extrapolate
 
     @property
     def target_name(self):
@@ -284,10 +296,159 @@ class GeocentricEphemeris(VectorFunction):
 
     def _at(self, t):
         jd = np.asarray(t.whole + t.tdb_fraction, dtype=float)
-        position, velocity = evaluate_segments(self.segments, jd.ravel())
+        position, velocity = evaluate_segments(self.segments, jd.ravel(), extrapolate=self.extrapolate)
         if jd.ndim == 0:
             position, velocity = position[:, 0], velocity[:, 0]
         else:
             position = position.reshape((3,) + jd.shape)
             velocity = velocity.reshape((3,) + jd.shape)
         return position, velocity, None, None
+
+
+# Receive times this far outside the coverage still get a Horizons light-time solution (the
+# light time of a NEA within 0.3 au is under 3 min).
+_LIGHT_TIME_MARGIN_DAYS = 0.05
+
+
+class HybridMinorPlanetBody(VectorFunction):
+    """
+    Skyfield body (barycentric) of a minor planet: the Horizons segments where they cover the
+    time, the MPC two-body orbit elsewhere. The position jumps at the coverage boundary.
+
+    at() (geometric) picks the source per evaluated time. observe() solves the light time
+    separately with each source (each is continuous, so the iteration converges) and then
+    takes, per time, Horizons when the light was emitted inside the coverage, else MPC. Seen by
+    an observer, the switch is therefore at the coverage boundary plus the light time
+    (receive_time_boundaries()); paths must be interrupted there.
+    """
+    center = 0
+    ephemeris = None
+
+    def __init__(self, earth, sun, orbit, segments, target='minor_planet'):
+        self.earth = earth
+        self.sun = sun
+        self.orbit = orbit  # heliocentric, e.g. skyfield.data.mpc.mpcorb_orbit()
+        self.segments = segments
+        self.target = target
+
+    @property
+    def target_name(self):
+        return str(self.target)
+
+    @staticmethod
+    def _jd(t):
+        return np.asarray(t.whole + t.tdb_fraction, dtype=float)
+
+    def _index(self, t):
+        return finest_segment_index(self.segments, self._jd(t).ravel())
+
+    def precise_mask(self, t):
+        """True where the geometric position at t comes from Horizons."""
+        return self._index(t) >= 0
+
+    def verified_mask(self, t):
+        """True where it comes from Horizons and the interpolation was checked."""
+        index = self._index(t)
+        verified = np.array([s.verified for s in self.segments] + [False])
+        return verified[index]
+
+    def coverage_boundaries(self):
+        """(start_jd, end_jd) TDB of the Horizons coverage (emission time), or None."""
+        return segments_coverage(self.segments)
+
+    def receive_time_boundaries(self):
+        """Coverage boundaries as receive times at the Earth (TDB JD), see segments_receive_boundaries()."""
+        return segments_receive_boundaries(self.segments)
+
+    def _mpc_at(self, t):
+        sun_p, sun_v = self.sun._at(t)[:2]
+        orbit_p, orbit_v = self.orbit._at(t)[:2]
+        return sun_p + orbit_p, sun_v + orbit_v
+
+    def _horizons_at(self, t):
+        """Earth + interpolated (and just outside the coverage extrapolated) geocentric vector."""
+        earth_p, earth_v = self.earth._at(t)[:2]
+        jd = self._jd(t)
+        with np.errstate(all='ignore'):
+            g_p, g_v = evaluate_segments(self.segments, jd.ravel(), extrapolate=True)
+        if jd.ndim == 0:
+            g_p, g_v = g_p[:, 0], g_v[:, 0]
+        else:
+            g_p, g_v = g_p.reshape((3,) + jd.shape), g_v.reshape((3,) + jd.shape)
+        return earth_p + g_p, earth_v + g_v
+
+    def _at(self, t):
+        position, velocity = self._mpc_at(t)
+        jd = self._jd(t)
+        covered = finest_segment_index(self.segments, jd.ravel()) >= 0
+        if covered.any():
+            mask = covered[0] if jd.ndim == 0 else covered.reshape(jd.shape)
+            h_p, h_v = self._horizons_at(t)
+            position = np.where(mask, h_p, position)
+            velocity = np.where(mask, h_v, velocity)
+        return position, velocity, None, None
+
+    @staticmethod
+    def _solve_light_time(observer, at):
+        """Skyfield's light-time iteration for one continuous source; never raises."""
+        t = observer.t
+        ts, whole, tdb_fraction = t.ts, t.whole, t.tdb_fraction
+        cposition = observer.xyz.au
+        tposition, tvelocity = at(t)
+        distance = length_of(tposition - cposition)
+        light_time0 = 0.0
+        light_time = distance / C_AUDAY
+        for _ in range(10):
+            light_time = distance / C_AUDAY
+            if max(np.abs(np.atleast_1d(light_time - light_time0)), default=0.0) < 1e-12:
+                break
+            tposition, tvelocity = at(ts.tdb_jd(whole, tdb_fraction - light_time))
+            distance = length_of(tposition - cposition)
+            light_time0 = light_time
+        return tposition, tvelocity, light_time
+
+    def _observe_from_bcrs(self, observer):
+        t = observer.t
+        cposition = observer.xyz.au
+        cvelocity = observer.velocity.au_per_d
+        m_p, m_v, m_lt = self._solve_light_time(observer, self._mpc_at)
+
+        receive_jd = self._jd(t)
+        start, end = self.coverage_boundaries()
+        near = (receive_jd >= start - _LIGHT_TIME_MARGIN_DAYS) & (receive_jd <= end + _LIGHT_TIME_MARGIN_DAYS)
+        if not np.any(near):
+            return m_p - cposition, m_v - cvelocity, t, m_lt
+        with np.errstate(all='ignore'):
+            h_p, h_v, h_lt = self._solve_light_time(observer, self._horizons_at)
+        emission_jd = receive_jd - h_lt
+        use_horizons = near & (finest_segment_index(self.segments, np.ravel(emission_jd)) >= 0).reshape(
+            np.shape(receive_jd))
+        position = np.where(use_horizons, h_p, m_p)
+        velocity = np.where(use_horizons, h_v, m_v)
+        light_time = np.where(use_horizons, h_lt, m_lt)
+        if np.ndim(receive_jd) == 0:
+            light_time = float(light_time)
+        return position - cposition, velocity - cvelocity, t, light_time
+
+
+def segments_coverage(segments):
+    """(start_jd, end_jd) TDB covered by the segments, or None."""
+    if not segments:
+        return None
+    return min(s.start_jd for s in segments), max(s.end_jd for s in segments)
+
+
+def segments_receive_boundaries(segments):
+    """
+    Coverage boundaries shifted by the light time from the asteroid to the geocenter: the receive
+    times at which an observer on the Earth sees the position source switch (TDB JD). A topocentric
+    observer differs by at most the Earth radius / c (~21 ms).
+    """
+    coverage = segments_coverage(segments)
+    if coverage is None:
+        return None
+    boundaries = []
+    for jd in coverage:
+        position, _ = evaluate_segments(segments, [jd])
+        boundaries.append(jd + float(np.linalg.norm(position[:, 0])) / C_AUDAY)
+    return tuple(boundaries)

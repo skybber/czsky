@@ -279,8 +279,11 @@ class TrajectorySource:
     """
     One trajectory request: object, its orbit, observer and the effective interval.
 
-    build_body(ts, sun) returns the Skyfield body; elements are the orbit values it uses.
+    build_body(ts, sun) returns the Skyfield body; elements are the orbit values it uses
+    (including the revision of any other position source, e.g. a Horizons ephemeris).
     observer is (lat_deg, lon_deg, elevation_m) for a topocentric path or None for geocentric.
+    breaks are UTC instants where the body switches its position source and may jump;
+    the path is sampled separately on each side and interrupted there.
     """
     kind: str
     object_id: str
@@ -293,6 +296,7 @@ class TrajectorySource:
     dt_from: datetime
     dt_to: datetime
     with_sun: bool = False
+    breaks: Tuple[datetime, ...] = ()
 
     def _observer_key(self):
         if self.observer is None:
@@ -321,6 +325,7 @@ class TrajectorySource:
             'label': self.label,
             'trajectory_id': self.trajectory_id,
             'with_sun': self.with_sun,
+            'breaks': [b.isoformat() for b in self.breaks],
         })
 
     @property
@@ -378,6 +383,26 @@ def _times_from_offsets(ts, dt_from: datetime, seconds: np.ndarray):
                   dt_from.second + np.asarray(seconds, dtype=float))
 
 
+BREAK_MARGIN_S = 1.0
+
+
+def _join_sample_results(results: Sequence[SampleResult]) -> SampleResult:
+    """Concatenates parts with a NaN gap entry between them; the first non-ok status wins."""
+    gap = np.array([np.nan])
+    times, ra, dec = [], [], []
+    for i, part in enumerate(results):
+        if i:
+            times.append(gap), ra.append(gap), dec.append(gap)
+        times.append(np.asarray(part.times, dtype=float))
+        ra.append(np.asarray(part.ra, dtype=float))
+        dec.append(np.asarray(part.dec, dtype=float))
+    failed = next((part for part in results if part.status != 'ok'), None)
+    return SampleResult(times=np.concatenate(times), ra=np.concatenate(ra), dec=np.concatenate(dec),
+                        status=failed.status if failed else 'ok',
+                        limit_reason=failed.limit_reason if failed else None,
+                        evaluations=sum(p.evaluations for p in results), rounds=max(p.rounds for p in results))
+
+
 def compute_trajectory_payload(source: TrajectorySource) -> Dict[str, object]:
     from skyfield.api import wgs84
     from skyfield.errors import EphemerisRangeError
@@ -400,8 +425,22 @@ def compute_trajectory_payload(source: TrajectorySource) -> Dict[str, object]:
     end_offset = (source.dt_to - source.dt_from).total_seconds()
     anchors = sorted(set(label_offsets) | {0.0, end_offset})
 
+    # Parts between breaks, kept BREAK_MARGIN_S off the break so each side uses one source.
+    break_offsets = sorted({o for o in ((b - source.dt_from).total_seconds() for b in source.breaks)
+                            if 0.0 < o < end_offset})
+    bounds = [0.0] + break_offsets + [end_offset]
+    parts = []
+    for i, (part_from, part_to) in enumerate(zip(bounds, bounds[1:])):
+        if i > 0:
+            part_from += BREAK_MARGIN_S
+        if i < len(bounds) - 2:
+            part_to -= BREAK_MARGIN_S
+        if part_to > part_from:
+            parts.append(sorted({part_from, part_to} | {o for o in anchors if part_from < o < part_to}))
+
     try:
-        result = sample_trajectory(anchors, evaluate, max_step_s=source.max_step.total_seconds())
+        results = [sample_trajectory(part, evaluate, max_step_s=source.max_step.total_seconds()) for part in parts]
+        result = results[0] if len(results) == 1 else _join_sample_results(results)
         sun_pos = {}
         if source.with_sun:
             offsets = sorted(label_offsets)
@@ -414,6 +453,10 @@ def compute_trajectory_payload(source: TrajectorySource) -> Dict[str, object]:
 
     points = []
     for t, ra, dec in zip(result.times, result.ra, result.dec):
+        if not np.isfinite(t):
+            # Gap between parts: the renderer interrupts the line at a point without coordinates.
+            points.append({'ra': None, 'dec': None, 'label': '', 'sun_ra': None, 'sun_dec': None})
+            continue
         label = label_offsets.get(float(t))
         sun_ra = sun_dec = None
         if label is not None and float(t) in sun_pos:

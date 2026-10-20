@@ -31,8 +31,19 @@ from app.models import (
     UserObjectListItem,
 )
 from app.commons.dbupdate_utils import ask_dbupdate_permit
-from app.commons.minor_planet_utils import ensure_nea_file, get_all_mpc_minor_planets, update_neo_positions
-from app.commons.neo_ephemeris_utils import delete_obsolete_neo_ephemeris_query
+from app.commons.horizons_utils import HybridMinorPlanetBody, build_verified_ephemeris, horizons_command
+from app.commons.minor_planet_utils import (
+    ensure_nea_file,
+    get_all_mpc_minor_planets,
+    sun_earth_body_distances,
+    update_neo_positions,
+)
+from app.commons.neo_ephemeris_utils import (
+    datetime_to_jd,
+    delete_obsolete_neo_ephemeris_query,
+    load_neo_ephemeris,
+    replace_neo_ephemeris,
+)
 from imports.import_minor_planets import assign_minor_planet_from_mpc_row, _int_designation_from_mpc_row
 
 CAD_API_URL = 'https://ssd-api.jpl.nasa.gov/cad.api'
@@ -50,6 +61,19 @@ NEO_PREFILTER_MAG_MARGIN = 0.5
 # approaches the phase angle, not the distance, decides), refined in steps:
 # (half window, step) in minutes.
 NEO_PEAK_SEARCH_STAGES = ((30 * 24 * 60, 6 * 60), (6 * 60, 15), (15, 1))
+# Approaches closer than this always get a Horizons ephemeris before the final filter: there the
+# MPC two-body orbit can be wrong by magnitudes (Earth's pull during the flyby; e.g. 2023 BU
+# 15.1 mag by MPC vs 11.6 by Horizons), so it must not decide.
+NEO_HORIZONS_ALWAYS_DIST_AU = 0.05
+# Farther approaches: preselected by the peak from the stored ephemeris or the MPC orbit with
+# this margin. There the MPC position error (minutes of arc, thousands of km at tenths of au)
+# changes the brightness by hundredths of a magnitude.
+NEO_HORIZONS_MAG_MARGIN = 0.3
+# Horizons coverage around now (listing and positions) and around each approach (peak search
+# +-30 days, plus a day for light time).
+NEO_EPHEMERIS_PAST = timedelta(days=2)
+NEO_EPHEMERIS_FUTURE = timedelta(days=91)
+NEO_EPHEMERIS_APPROACH_MARGIN = timedelta(days=31)
 # Past approaches are not shown anywhere; keep them a while, then delete.
 NEO_APPROACH_HISTORY = timedelta(days=30)
 # Asteroids imported by the NEA update are deleted again when unused for this long.
@@ -164,19 +188,7 @@ def apparent_magnitude_hg(h, g, r_au, delta_au, earth_sun_au):
         return h + 5.0 * np.log10(r_au * delta_au) - 2.5 * np.log10((1.0 - g) * phi1 + g * phi2)
 
 
-def _sun_earth_body_distances(body, t, sun, earth):
-    """
-    Asteroid-Sun, asteroid-Earth and Earth-Sun distances in au from geometric positions at the
-    same instants, so they form one triangle for the phase angle. observe() would apply a
-    different light time from the Earth and from the Sun, i.e. two different asteroid positions;
-    light time itself is irrelevant for brightness.
-    """
-    body_pos = body.at(t).position.au
-    earth_pos = earth.at(t).position.au
-    sun_pos = sun.at(t).position.au
-    return (np.linalg.norm(body_pos - sun_pos, axis=0),
-            np.linalg.norm(body_pos - earth_pos, axis=0),
-            np.linalg.norm(earth_pos - sun_pos, axis=0))
+_sun_earth_body_distances = sun_earth_body_distances
 
 
 def _magnitudes_at(body, base_time, offsets_seconds, ts, sun, earth, h, g):
@@ -186,11 +198,12 @@ def _magnitudes_at(body, base_time, offsets_seconds, ts, sun, earth, h, g):
     return t, apparent_magnitude_hg(h, g, r, delta, earth_sun)
 
 
-def compute_peak_brightness(mpc_row, approach_time, ts, eph):
+def compute_peak_brightness(mpc_row, approach_time, ts, eph, segments=None):
     """
-    Brightest geocentric apparent magnitude within +-30 days of approach_time (NEO_PEAK_SEARCH_STAGES),
-    from the MPC orbit (two-body) with the H, G phase model. Returns (peak_mag, peak_time UTC naive)
-    or (None, None) without a usable H.
+    Brightest geocentric apparent magnitude within +-30 days of approach_time (NEO_PEAK_SEARCH_STAGES)
+    with the H, G phase model, from the Horizons segments where they cover the time and the MPC
+    orbit (two-body) elsewhere. Returns (peak_mag, peak_time UTC naive) or (None, None) without a
+    usable H.
     """
     h = mpc_row['magnitude_H']
     if h is None or not np.isfinite(h):
@@ -198,7 +211,8 @@ def compute_peak_brightness(mpc_row, approach_time, ts, eph):
     g = mpc_row['magnitude_G']
     g = 0.15 if g is None or not np.isfinite(g) else float(g)
     sun, earth = eph['sun'], eph['earth']
-    body = sun + mpc.mpcorb_orbit(mpc_row, ts, GM_SUN)
+    orbit = mpc.mpcorb_orbit(mpc_row, ts, GM_SUN)
+    body = HybridMinorPlanetBody(earth, sun, orbit, segments) if segments else sun + orbit
 
     best = 0.0
     for half_window, step in NEO_PEAK_SEARCH_STAGES:
@@ -236,53 +250,128 @@ def _get_or_create_minor_planet(mpc_row, now):
     return minor_planet
 
 
-def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag_limit=NEO_PEAK_MAG_LIMIT):
+def _provisional_designation(mpc_row):
+    designation = str(mpc_row['designation'] or '').strip()
+    return None if designation.startswith('(') else designation
+
+
+def fetch_neo_ephemeris(mpc_row, approach_times, now):
     """
-    Replaces stored approaches in [window_start, window_start + days) with the given ones
-    that pass mag_limit, importing their asteroids, all in one transaction.
+    Verified Horizons ephemeris segments of an asteroid covering now and +-31 days around its
+    approaches (see NEO_EPHEMERIS_*). Raises on Horizons failures.
+    """
+    start = min(now - NEO_EPHEMERIS_PAST, min(approach_times) - NEO_EPHEMERIS_APPROACH_MARGIN)
+    stop = max(now + NEO_EPHEMERIS_FUTURE, max(approach_times) + NEO_EPHEMERIS_APPROACH_MARGIN)
+    command = horizons_command(int_designation=_int_designation_from_mpc_row(mpc_row),
+                               designation=_provisional_designation(mpc_row))
+    # JD of UTC is used as TDB: the 69 s difference does not matter for the coverage window.
+    return build_verified_ephemeris(command, datetime_to_jd(start), datetime_to_jd(stop))
+
+
+def _stored_ephemeris(mpc_row):
+    minor_planet = MinorPlanet.query.filter_by(mpc_designation=str(mpc_row['designation_packed']).strip()).first()
+    return load_neo_ephemeris(minor_planet.id)[0] if minor_planet is not None else []
+
+
+def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag_limit=NEO_PEAK_MAG_LIMIT,
+                           fetch_ephemeris=None):
+    """
+    Replaces stored approaches in [window_start, window_start + days) with the given ones whose
+    peak brightness passes mag_limit, importing their asteroids and their Horizons ephemerides.
+    Order: rough estimate and MPC orbit peak preselect the candidates (with margins), Horizons
+    ephemerides are downloaded for them, the peak is recomputed with Horizons and only then
+    filtered; the database is written in one transaction at the end. If Horizons fails for an
+    asteroid, its previously stored ephemeris (if any) is kept and used.
     Approaches before window_start stay as history.
     """
+    fetch_ephemeris = fetch_ephemeris or fetch_neo_ephemeris
     window_end = window_start + timedelta(days=days)
     mpc_minor_planets = get_all_mpc_minor_planets()
     index = build_designation_index(mpc_minor_planets)
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
 
-    peak_seconds = 0.0
-    peak_count = 0
+    def peak(mpc_row, approach_time, segments):
+        try:
+            return compute_peak_brightness(mpc_row, approach_time, ts, eph, segments=segments)
+        except Exception:
+            current_app.logger.exception('Peak brightness of {} failed.'.format(mpc_row['designation']))
+            return None, None
+
+    # 1. Candidates: no network, no writes.
+    started = time.perf_counter()
+    candidates = []
+    unmatched = []
+    for approach in approaches:
+        if not window_start <= approach['approach_time'] < window_end:
+            continue  # CAD bounds are TDB; drop the ~69 s overlap outside the window
+        packed = index.get(approach['designation'])
+        mpc_row = mpc_minor_planets.loc[packed] if packed is not None else None
+        # Same H as the computed peak (MPC); CAD H only for asteroids without an orbit.
+        h = approach['h']
+        if mpc_row is not None and mpc_row['magnitude_H'] is not None and np.isfinite(mpc_row['magnitude_H']):
+            h = float(mpc_row['magnitude_H'])
+        est_peak_mag = estimate_peak_mag(h, approach['dist_au'])
+        if est_peak_mag is None or est_peak_mag > mag_limit + NEO_PREFILTER_MAG_MARGIN:
+            continue
+        peak_mag = peak_time = None
+        if mpc_row is not None:
+            # The stored Horizons ephemeris (if any) already here, the MPC orbit otherwise.
+            peak_mag, peak_time = peak(mpc_row, approach['approach_time'], _stored_ephemeris(mpc_row) or None)
+            if (approach['dist_au'] >= NEO_HORIZONS_ALWAYS_DIST_AU and peak_mag is not None
+                    and peak_mag > mag_limit + NEO_HORIZONS_MAG_MARGIN):
+                continue
+        elif est_peak_mag > mag_limit:
+            continue
+        candidates.append({'approach': approach, 'packed': packed, 'mpc_row': mpc_row,
+                           'est_peak_mag': est_peak_mag, 'peak_mag': peak_mag, 'peak_time': peak_time})
+    mpc_seconds = time.perf_counter() - started
+
+    # 2. Horizons ephemerides of the candidates, before the final filter.
+    started = time.perf_counter()
+    fetched = {}  # packed -> new segments
+    segments_for_peak = {}
+    for packed in dict.fromkeys(c['packed'] for c in candidates if c['packed'] is not None):
+        items = [c for c in candidates if c['packed'] == packed]
+        try:
+            fetched[packed] = fetch_ephemeris(items[0]['mpc_row'], [c['approach']['approach_time'] for c in items],
+                                              window_start)
+            segments_for_peak[packed] = fetched[packed]
+        except Exception:
+            current_app.logger.exception('Horizons ephemeris of {} failed; keeping the stored one.'.format(
+                items[0]['mpc_row']['designation']))
+            segments_for_peak[packed] = _stored_ephemeris(items[0]['mpc_row'])
+    horizons_seconds = time.perf_counter() - started
+
+    # 3. Final peak (Horizons where available) and filter.
+    kept = []
+    for c in candidates:
+        segments = segments_for_peak.get(c['packed'])
+        if segments:
+            peak_mag, peak_time = peak(c['mpc_row'], c['approach']['approach_time'], segments)
+            if peak_mag is not None:
+                c['peak_mag'], c['peak_time'] = peak_mag, peak_time
+        if (c['peak_mag'] if c['peak_mag'] is not None else c['est_peak_mag']) <= mag_limit:
+            kept.append(c)
+
+    # 4. One transaction.
     try:
+        minor_planets = {}
         new_rows = []
-        unmatched = []
-        for approach in approaches:
-            if not window_start <= approach['approach_time'] < window_end:
-                continue  # CAD bounds are TDB; drop the ~69 s overlap outside the window
-            packed = index.get(approach['designation'])
-            mpc_row = mpc_minor_planets.loc[packed] if packed is not None else None
-            # Same H as the computed peak (MPC); CAD H only for asteroids without an orbit.
-            h = approach['h']
-            if mpc_row is not None and mpc_row['magnitude_H'] is not None and np.isfinite(mpc_row['magnitude_H']):
-                h = float(mpc_row['magnitude_H'])
-            est_peak_mag = estimate_peak_mag(h, approach['dist_au'])
-            if est_peak_mag is None or est_peak_mag > mag_limit + NEO_PREFILTER_MAG_MARGIN:
-                continue
+        for c in kept:
             minor_planet = None
-            peak_mag = peak_time = None
-            if mpc_row is not None:
-                started = time.perf_counter()
-                try:
-                    peak_mag, peak_time = compute_peak_brightness(mpc_row, approach['approach_time'], ts, eph)
-                except Exception:
-                    current_app.logger.exception('Peak brightness of {} failed.'.format(approach['designation']))
-                peak_seconds += time.perf_counter() - started
-                peak_count += 1
-            if (peak_mag if peak_mag is not None else est_peak_mag) > mag_limit:
-                continue
-            if packed is not None:
-                minor_planet = _get_or_create_minor_planet(mpc_row, window_start)
+            if c['packed'] is not None:
+                minor_planet = minor_planets.get(c['packed'])
+                if minor_planet is None:
+                    minor_planet = minor_planets[c['packed']] = _get_or_create_minor_planet(c['mpc_row'], window_start)
             else:
-                unmatched.append(approach['designation'])
-            new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=est_peak_mag,
-                                             peak_mag=peak_mag, peak_time=peak_time, **approach))
+                unmatched.append(c['approach']['designation'])
+            new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=c['est_peak_mag'],
+                                             peak_mag=c['peak_mag'], peak_time=c['peak_time'], **c['approach']))
+        db.session.flush()
+        for packed, minor_planet in minor_planets.items():
+            if fetched.get(packed):
+                replace_neo_ephemeris(minor_planet.id, fetched[packed], window_start)
 
         NeoCloseApproach.query.filter(
             NeoCloseApproach.approach_time >= window_start,
@@ -296,8 +385,10 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
 
     if unmatched:
         current_app.logger.warning('NEA close approaches without elements: {}'.format(', '.join(unmatched)))
-    current_app.logger.info('Stored {} NEA close approaches; peak brightness of {} computed in {:.1f} s.'.format(
-        len(new_rows), peak_count, peak_seconds))
+    current_app.logger.info(
+        'Stored {} NEA close approaches of {} candidates; MPC peaks {:.1f} s, Horizons ephemerides of {} '
+        'asteroids ({} failed) {:.1f} s.'.format(len(new_rows), len(candidates), mpc_seconds, len(segments_for_peak),
+                                                 len(segments_for_peak) - len(fetched), horizons_seconds))
     return new_rows
 
 

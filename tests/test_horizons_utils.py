@@ -42,8 +42,9 @@ def _read_observer_fixture(name, site):
 
 
 def _separation_arcsec(ra1, dec1, ra2, dec2):
-    cos = np.sin(dec1) * np.sin(dec2) + np.cos(dec1) * np.cos(dec2) * np.cos(ra1 - ra2)
-    return np.degrees(np.arccos(np.clip(cos, -1.0, 1.0))) * 3600.0
+    # Haversine: arccos of the dot product resolves only ~0.003" for nearly equal directions.
+    h = np.sin((dec2 - dec1) / 2.0) ** 2 + np.cos(dec1) * np.cos(dec2) * np.sin((ra2 - ra1) / 2.0) ** 2
+    return np.degrees(2.0 * np.arcsin(np.sqrt(np.clip(h, 0.0, 1.0)))) * 3600.0
 
 
 # --- Synthetic hyperbolic flyby around the Earth ------------------------------------------------

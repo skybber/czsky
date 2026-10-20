@@ -44,22 +44,25 @@ def light_curve_dates(center_dt, half_range_days):
     return [start + span * i / (sample_count - 1) for i in range(sample_count)]
 
 
-def body_geometry(body_orbit_factory, dates):
-    """Heliocentric distance r, geocentric distance delta and phase angle (deg) of a body."""
+def body_geometry(body_factory, dates):
+    """
+    Heliocentric distance r, geocentric distance delta and phase angle (deg) of a body.
+    body_factory(ts, sun, earth) returns the Skyfield body (barycentric). Distances come from
+    geometric positions at the same instants, so they form one triangle for the phase angle.
+    """
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
     t = ts.from_datetimes(dates)
-    body = sun + body_orbit_factory(ts)
+    body = body_factory(ts, sun, earth)
 
-    sun_body = (body.at(t).position.au - sun.at(t).position.au)
-    earth_at = earth.at(t)
-    earth_body = earth_at.observe(body).position.au
-    earth_sun = earth_at.observe(sun).position.au
+    body_pos = body.at(t).position.au
+    earth_pos = earth.at(t).position.au
+    sun_pos = sun.at(t).position.au
 
-    r = np.linalg.norm(sun_body, axis=0)
-    delta = np.linalg.norm(earth_body, axis=0)
-    earth_sun_dist = np.linalg.norm(earth_sun, axis=0)
+    r = np.linalg.norm(body_pos - sun_pos, axis=0)
+    delta = np.linalg.norm(body_pos - earth_pos, axis=0)
+    earth_sun_dist = np.linalg.norm(earth_pos - sun_pos, axis=0)
     cos_phase = (r ** 2 + delta ** 2 - earth_sun_dist ** 2) / (2.0 * r * delta)
     phase = np.degrees(np.arccos(np.clip(cos_phase, -1.0, 1.0)))
     return r, delta, phase
@@ -81,13 +84,19 @@ def comet_magnitude(g_mag, k_slope, r, delta):
     return g_mag + 5.0 * np.log10(delta) + 2.5 * k_slope * np.log10(r)
 
 
-def minor_planet_light_curve(mpc_minor_planet, h_mag, g_slope, dates):
-    r, delta, phase = body_geometry(lambda ts: mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN), dates)
+def minor_planet_light_curve(mpc_minor_planet, h_mag, g_slope, dates, minor_planet=None):
+    """With minor_planet, a stored Horizons ephemeris is used where it covers the dates."""
+    if minor_planet is not None:
+        from app.commons.minor_planet_utils import get_minor_planet_body
+        factory = lambda ts, sun, earth: get_minor_planet_body(minor_planet, ts, sun, earth, mpc_minor_planet)
+    else:
+        factory = lambda ts, sun, earth: sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    r, delta, phase = body_geometry(factory, dates)
     return hg_magnitude(h_mag, g_slope, r, delta, phase)
 
 
 def comet_light_curve(mpc_comet, dates):
-    r, delta, _ = body_geometry(lambda ts: mpc.comet_orbit(mpc_comet, ts, GM_SUN), dates)
+    r, delta, _ = body_geometry(lambda ts, sun, earth: sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN), dates)
     return comet_magnitude(mpc_comet['magnitude_g'], mpc_comet['magnitude_k'], r, delta)
 
 
