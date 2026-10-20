@@ -51,8 +51,9 @@
                         </div>
                     </div>
                 </div>
-            </form>
 
+            {# Inside the form like on the comets page: as the form's last child the menu
+             # would lose its bottom margin (Semantic UI .ui.menu:last-child). #}
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}
             <div style="overflow-x: scroll;width: 100%">
@@ -116,6 +117,7 @@
                     </tbody>
                 </table>
             </div>
+            </form>
             <p class="ui small grey text">
                 {{ _('Close approaches within 0.05 au from JPL CNEOS with maximum brightness up to 18 mag. Maximum brightness and its time (UTC) are computed from the MPC orbit within 5 days of the approach; ~ marks a rough estimate for asteroids without an orbit. LD = lunar distance.') }}
             </p>
