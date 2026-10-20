@@ -1,0 +1,156 @@
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+JPL/HORIZONS                      (2023 BU)                2026-Oct-20 12:07:57
+Rec #:50530531 (+COV) Soln.date: 2024-Aug-08_06:19:37      # obs: 254 (10 days)
+ 
+IAU76/J2000 helio. ecliptic osc. elements (au, days, deg., period=Julian yrs):
+ 
+  EPOCH=  2459969.5 ! 2023-Jan-25.00 (TDB)         Residual RMS= .61928
+   EC= .07135850903735774  QR= .9153635685574424   TP= 2460056.402233528
+   OM= 306.5318107235213   W=  273.6017530456425   IN= 2.589558997810352
+   A= .9857017777749346    MA= 272.4781069153847   ADIST= 1.056039986992427
+   PER= .97865             N= 1.007130537          ANGMOM= .017035138
+   DAN= .97631             DDN= .9851              L= 220.1372359
+   B= -2.5844406           MOID= .00018829         TP= 2023-Apr-21.9022335280
+ 
+Asteroid physical parameters (km, seconds, rotational period in hours):
+   GM= n.a.                RAD= n.a.               ROTPER= .021583
+   H= 29.69                G= .150                 B-V= n.a.
+                           ALBEDO= n.a.            STYP= n.a.
+
+ASTEROID comments: 
+1: soln ref.= JPL#23, OCC=1           radar( 2 delay, 0 Dop.)
+2: source=ORB
+*******************************************************************************
+
+  
+
+*******************************************************************************
+Ephemeris / API_USER Tue Oct 20 12:07:57 2026 Pasadena, USA      / Horizons
+*******************************************************************************
+Target body name: (2023 BU)                       {source: JPL#23}
+Center body name: Earth (399)                     {source: DE441}
+Center-site name: BODY CENTER
+*******************************************************************************
+Start time      : A.D. 2023-Jan-26 12:30:00.0000 TDB
+Stop  time      : A.D. 2023-Jan-27 11:30:00.0000 TDB
+Step-size       : 60 minutes
+*******************************************************************************
+Center geodetic : 0.0, 0.0, 0.0                   {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 0.0, 0.0, 0.0                   {E-lon(deg),Dxy(km),Dz(km)}
+Center radii    : 6378.137, 6378.137, 6356.752 km {Equator_a, b, pole_c}
+Small perturbers: Yes                             {source: SB441-N16}
+Output units    : AU-D
+Calendar mode   : Mixed Julian/Gregorian
+Output type     : GEOMETRIC cartesian states
+Output format   : 2 (position and velocity)
+EOP file        : eop.261019.p270114
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-OCT-19. PREDICTS-> 2027-JAN-13
+Reference frame : ICRF
+*******************************************************************************
+Initial IAU76/J2000 heliocentric ecliptic osculating elements (au, days, deg.):
+  EPOCH=  2459969.5 ! 2023-Jan-25.00 (TDB)         Residual RMS= .61928        
+   EC= .07135850903735774  QR= .9153635685574424   TP= 2460056.402233528       
+   OM= 306.5318107235213   W=  273.6017530456425   IN= 2.589558997810352       
+  Equivalent ICRF heliocentric cartesian coordinates (au, au/d):
+   X=-5.585807334111443E-01  Y= 7.466856041597770E-01  Z= 3.255044783346349E-01
+  VX=-1.351305344133843E-02 VY=-9.562138901216793E-03 VZ=-4.996700278555643E-03
+Asteroid physical parameters (km, seconds, rotational period in hours):        
+   GM= n.a.                RAD= n.a.               ROTPER= .021583             
+   H= 29.69                G= .150                 B-V= n.a.                   
+                           ALBEDO= n.a.            STYP= n.a.                  
+*******************************************************************************
+            JDTDB,            Calendar Date (TDB),                      X,                      Y,                      Z,                     VX,                     VY,                     VZ,
+**************************************************************************************************************************************************************************************************
+$$SOE
+2459971.020833333, A.D. 2023-Jan-26 12:30:00.0000, -6.530002838505610E-04,  6.080383021018800E-04,  7.154439604757636E-04,  1.141911022968410E-03, -7.221858930524036E-04, -1.304325905416528E-03,
+2459971.062500000, A.D. 2023-Jan-26 13:30:00.0000, -6.050694189759149E-04,  5.776167816628540E-04,  6.607115261830114E-04,  1.159159523062261E-03, -7.384812910961006E-04, -1.323245341575957E-03,
+2459971.104166667, A.D. 2023-Jan-26 14:30:00.0000, -5.563674035022700E-04,  5.464570285768056E-04,  6.051350039516986E-04,  1.179024372377835E-03, -7.577496775246848E-04, -1.344943757591598E-03,
+2459971.145833333, A.D. 2023-Jan-26 15:30:00.0000, -5.067715103957530E-04,  5.144169116191787E-04,  5.485844436237550E-04,  1.202201666886356E-03, -7.809250656490533E-04, -1.370138810805888E-03,
+2459971.187500000, A.D. 2023-Jan-26 16:30:00.0000, -4.561244924804363E-04,  4.813068159794465E-04,  4.908944865429789E-04,  1.229673208290024E-03, -8.093895629811039E-04, -1.399832655563155E-03,
+2459971.229166667, A.D. 2023-Jan-26 17:30:00.0000, -4.042194857230853E-04,  4.468651966566777E-04,  4.318494530949176E-04,  1.262875670201921E-03, -8.452833584805897E-04, -1.435473402263910E-03,
+2459971.270833333, A.D. 2023-Jan-26 18:30:00.0000, -3.507752986542828E-04,  4.107157617859582E-04,  3.711593724160643E-04,  1.304009301449746E-03, -8.921163961274913E-04, -1.479242548905048E-03,
+2459971.312500000, A.D. 2023-Jan-26 19:30:00.0000, -2.953934623410076E-04,  3.722865414479642E-04,  3.084193388920854E-04,  1.356643735764101E-03, -9.560933484314574E-04, -1.534599518674616E-03,
+2459971.354166667, A.D. 2023-Jan-26 20:30:00.0000, -2.374776860948258E-04,  3.306406248440940E-04,  2.430360340809406E-04,  1.427019705129234E-03, -1.049363629150744E-03, -1.607388554816116E-03,
+2459971.395833333, A.D. 2023-Jan-26 21:30:00.0000, -1.760674025835131E-04,  2.840683261869100E-04,  1.740849691443617E-04,  1.527174884501598E-03, -1.199518149583220E-03, -1.708231494898044E-03,
+2459971.437500000, A.D. 2023-Jan-26 22:30:00.0000, -1.094510714465085E-04,  2.288695268703592E-04,  1.000211896314860E-04,  1.683283086990334E-03, -1.485857530835852E-03, -1.857197672553887E-03,
+2459971.479166667, A.D. 2023-Jan-26 23:30:00.0000, -3.426514708062571E-05,  1.540910003724466E-04,  1.838541502208880E-05,  1.947267393211341E-03, -2.259841572182729E-03, -2.063663191215076E-03,
+2459971.520833333, A.D. 2023-Jan-27 00:30:00.0000,  4.146878424005432E-05,  4.110651840201889E-06, -5.212498358590594E-05,  7.544125829730627E-04, -5.293660078920224E-03, -1.047074565448355E-04,
+2459971.562500000, A.D. 2023-Jan-27 01:30:00.0000,  1.537342423154604E-05, -1.636378045602629E-04,  6.685474210532939E-06, -1.089372529631131E-03, -2.885501365655329E-03,  1.807112850623250E-03,
+2459971.604166667, A.D. 2023-Jan-27 02:30:00.0000, -3.041134851000858E-05, -2.644512173015823E-04,  7.941278464910381E-05, -1.082880845654463E-03, -2.096127794948559E-03,  1.674698882853549E-03,
+2459971.645833333, A.D. 2023-Jan-27 03:30:00.0000, -7.441175933650546E-05, -3.442877161198224E-04,  1.466196898655383E-04, -1.029817744375015E-03, -1.772956096733797E-03,  1.557892615026273E-03,
+2459971.687500000, A.D. 2023-Jan-27 04:30:00.0000, -1.163606980597184E-04, -4.141251086318846E-04,  2.097036564877931E-04, -9.854610012040698E-04, -1.593975432343689E-03,  1.474606065115443E-03,
+2459971.729166667, A.D. 2023-Jan-27 05:30:00.0000, -1.566633901496178E-04, -4.779844737632178E-04,  2.698010632482963E-04, -9.504209319236850E-04, -1.478670283750131E-03,  1.412913374186657E-03,
+2459971.770833333, A.D. 2023-Jan-27 06:30:00.0000, -1.956590281551482E-04, -5.378140536331783E-04,  3.276397749537300E-04, -9.223566346217235E-04, -1.397414424093561E-03,  1.365241342409225E-03,
+2459971.812500000, A.D. 2023-Jan-27 07:30:00.0000, -2.335970710557682E-04, -5.947176641106874E-04,  3.837032343964056E-04, -8.993968677515990E-04, -1.336656783311720E-03,  1.327132284648986E-03,
+2459971.854166667, A.D. 2023-Jan-27 08:30:00.0000, -2.706613927690907E-04, -6.493866085409682E-04,  4.383284852107266E-04, -8.802392742132082E-04, -1.289275765669730E-03,  1.295847664211953E-03,
+2459971.895833333, A.D. 2023-Jan-27 09:30:00.0000, -3.069905030054535E-04, -7.022851619308562E-04,  4.917604963911210E-04, -8.639817671276988E-04, -1.251149369908893E-03,  1.269618415466552E-03,
+2459971.937500000, A.D. 2023-Jan-27 10:30:00.0000, -3.426912199377152E-04, -7.537416220410354E-04,  5.441834802409854E-04, -8.499869543303086E-04, -1.219715893974407E-03,  1.247249880269146E-03,
+2459971.979166667, A.D. 2023-Jan-27 11:30:00.0000, -3.778477126399452E-04, -8.039975203268486E-04,  5.957398704131777E-04, -8.377934143125987E-04, -1.193293918340120E-03,  1.227904528176936E-03,
+$$EOE
+**************************************************************************************************************************************************************************************************
+ 
+TIME
+
+  Barycentric Dynamical Time ("TDB" or T_eph) output was requested. This
+continuous coordinate time is equivalent to the relativistic proper time
+of a clock at rest in a reference frame co-moving with the solar system
+barycenter but outside the system's gravity well. It is the independent
+variable in the solar system relativistic equations of motion.
+
+  TDB runs at a uniform rate of one SI second per second and is independent
+of irregularities in Earth's rotation.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+REFERENCE FRAME AND COORDINATES
+
+  International Celestial Reference Frame (ICRF)
+
+    The ICRF is an adopted reference frame whose axes are defined relative to 
+    fixed extragalactic radio sources distributed across the sky.
+
+    The ICRF was aligned with the prior FK5/J2000 dynamical system at the ~0.02 
+    arcsecond level but is not identical and has no associated standard epoch.
+
+  Symbol meaning [1 au= 149597870.700 km, 1 day= 86400.0 s]:
+
+    JDTDB    Julian Day Number, Barycentric Dynamical Time
+      X      X-component of position vector (au)
+      Y      Y-component of position vector (au)
+      Z      Z-component of position vector (au)
+      VX     X-component of velocity vector (au/day)                           
+      VY     Y-component of velocity vector (au/day)                           
+      VZ     Z-component of velocity vector (au/day)                           
+
+ABERRATIONS AND CORRECTIONS
+
+ Geometric state vectors have NO corrections or aberrations applied.
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+*******************************************************************************

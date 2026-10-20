@@ -24,6 +24,7 @@ from app.models import (
     DB_UPDATE_NEO_KEY,
     MinorPlanet,
     NeoCloseApproach,
+    NeoEphemerisSegment,
     Observation,
     ObservedListItem,
     SessionPlanItem,
@@ -31,6 +32,7 @@ from app.models import (
 )
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 from app.commons.minor_planet_utils import ensure_nea_file, get_all_mpc_minor_planets, update_neo_positions
+from app.commons.neo_ephemeris_utils import delete_obsolete_neo_ephemeris_query
 from imports.import_minor_planets import assign_minor_planet_from_mpc_row, _int_designation_from_mpc_row
 
 CAD_API_URL = 'https://ssd-api.jpl.nasa.gov/cad.api'
@@ -304,12 +306,15 @@ def cleanup_neo_data(now):
     Deletes approaches older than NEO_APPROACH_HISTORY and asteroids imported by the NEA update
     more than NEO_IMPORT_RETENTION ago that nothing references any more (no approach, observation,
     observed list, user list or session plan item). Rows from the initial import or a user search
-    (neo_imported_at null) are never deleted. One transaction.
+    (neo_imported_at null) are never deleted. Also deletes Horizons ephemeris segments that ended
+    or were not refreshed for a long time, and those of the deleted asteroids (an ephemeris alone
+    does not keep an asteroid). One transaction.
     """
     try:
         deleted_approaches = NeoCloseApproach.query \
             .filter(NeoCloseApproach.approach_time < now - NEO_APPROACH_HISTORY) \
             .delete(synchronize_session=False)
+        deleted_segments = delete_obsolete_neo_ephemeris_query(now).delete(synchronize_session=False)
         unused = MinorPlanet.query.filter(
             MinorPlanet.neo_imported_at.isnot(None),
             MinorPlanet.neo_imported_at < now - NEO_IMPORT_RETENTION,
@@ -319,13 +324,19 @@ def cleanup_neo_data(now):
             ~exists().where(UserObjectListItem.minor_planet_id == MinorPlanet.id),
             ~exists().where(SessionPlanItem.minor_planet_id == MinorPlanet.id),
         )
-        deleted_minor_planets = unused.delete(synchronize_session=False)
+        unused_ids = [minor_planet_id for (minor_planet_id,) in unused.with_entities(MinorPlanet.id)]
+        deleted_minor_planets = 0
+        if unused_ids:
+            deleted_segments += NeoEphemerisSegment.query \
+                .filter(NeoEphemerisSegment.minor_planet_id.in_(unused_ids)).delete(synchronize_session=False)
+            deleted_minor_planets = MinorPlanet.query \
+                .filter(MinorPlanet.id.in_(unused_ids)).delete(synchronize_session=False)
         db.session.commit()
     except Exception:
         db.session.rollback()
         raise
-    current_app.logger.info('Deleted {} old NEA close approaches and {} unused imported asteroids.'.format(
-        deleted_approaches, deleted_minor_planets))
+    current_app.logger.info('Deleted {} old NEA close approaches, {} unused imported asteroids and {} ephemeris '
+                            'segments.'.format(deleted_approaches, deleted_minor_planets, deleted_segments))
     return deleted_approaches, deleted_minor_planets
 
 
