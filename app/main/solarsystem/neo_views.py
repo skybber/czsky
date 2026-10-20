@@ -25,6 +25,9 @@ main_neo = Blueprint('main_neo', __name__)
 # Approaches that passed less than this long ago are still listed.
 NEO_RECENT_PAST = timedelta(days=1)
 
+# Computed peak brightness; the rough estimate only for asteroids without an orbit.
+NEO_PEAK_MAG = func.coalesce(NeoCloseApproach.peak_mag, NeoCloseApproach.est_peak_mag)
+
 NEO_SORT_DEF = {
     # Unmatched approaches have no minor planet; show and sort them by the CAD designation.
     'name': func.coalesce(MinorPlanet.designation, NeoCloseApproach.designation),
@@ -32,7 +35,7 @@ NEO_SORT_DEF = {
     'dist': NeoCloseApproach.dist_au,
     'v_rel': NeoCloseApproach.v_rel_kms,
     'h': NeoCloseApproach.h,
-    'peak_mag': NeoCloseApproach.est_peak_mag,
+    'peak_mag': NEO_PEAK_MAG,
     'cur_mag': MinorPlanet.eval_mag,
 }
 # Observers care first about what they can see.
@@ -91,7 +94,7 @@ def near_earth_asteroids():
     if form.dist_max_ld.data != 'all':
         query = query.filter(NeoCloseApproach.dist_au <= float(form.dist_max_ld.data) * LUNAR_DISTANCE_KM / AU_KM)
     if form.maglim.data is not None:
-        query = query.filter(NeoCloseApproach.est_peak_mag <= form.maglim.data)
+        query = query.filter(NEO_PEAK_MAG <= form.maglim.data)
     if form.pha_only.data:
         query = query.filter(MinorPlanet.is_pha.is_(True))
     # Missing values (no H, unmatched asteroid without current brightness) go last in both directions.

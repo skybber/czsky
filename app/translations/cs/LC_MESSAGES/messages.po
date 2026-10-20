@@ -3975,9 +3975,6 @@ msgstr "Přiblížení k Zemi"
 msgid "Velocity"
 msgstr "Rychlost"
 
-msgid "Est. max. brightness"
-msgstr "Odhad max. jasnosti"
-
 msgid "Very close approach: the computed position is only approximate."
 msgstr "Velmi těsné přiblížení: vypočtená poloha je jen přibližná."
 
@@ -4008,5 +4005,11 @@ msgstr "Jen PHA"
 msgid "No close approaches in the selected period."
 msgstr "Ve zvoleném období nejsou žádná přiblížení."
 
-msgid "Close approaches within 0.05 au from JPL CNEOS, estimated brightness up to 18 mag. The estimate ignores the phase angle. LD = lunar distance."
-msgstr "Přiblížení do 0,05 au podle JPL CNEOS s odhadem jasnosti do 18 mag. Odhad nezohledňuje fázový úhel. LD = vzdálenost Měsíce."
+msgid "Max. brightness"
+msgstr "Max. jas"
+
+msgid "Rough estimate, the orbit is not available."
+msgstr "Hrubý odhad, dráha není k dispozici."
+
+msgid "Close approaches within 0.05 au from JPL CNEOS with maximum brightness up to 18 mag. Maximum brightness and its time (UTC) are computed from the MPC orbit within 5 days of the approach; ~ marks a rough estimate for asteroids without an orbit. LD = lunar distance."
+msgstr "Přiblížení do 0,05 au podle JPL CNEOS s maximální jasností do 18 mag. Maximální jas a jeho čas (UTC) jsou spočítané z dráhy MPC v rozmezí 5 dní od přiblížení; ~ označuje hrubý odhad u planetek bez dráhy. LD = vzdálenost Měsíce."

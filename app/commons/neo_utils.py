@@ -7,11 +7,15 @@ into minor_planets.
 """
 import math
 import re
+import time
 from datetime import datetime, timedelta, timezone
 
+import numpy as np
 import requests
 from flask import current_app
 from skyfield.api import load
+from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
+from skyfield.data import mpc
 
 from app import db
 from app.models import DB_UPDATE_NEO_KEY, MinorPlanet, NeoCloseApproach
@@ -25,6 +29,13 @@ CAD_REQUIRED_FIELDS = ('des', 'orbit_id', 'jd', 'dist', 'dist_min', 'dist_max', 
 NEO_APPROACH_DAYS = 60
 NEO_APPROACH_DIST_MAX_AU = 0.05
 NEO_PEAK_MAG_LIMIT = 18.0
+# The rough estimate ignores the phase angle, so it is brighter than the computed peak
+# (with r ~ 1 AU); preselect with a margin and decide by the computed peak.
+NEO_PREFILTER_MAG_MARGIN = 0.5
+# The brightest moment is searched in +-5 days around the approach, hourly, then refined.
+NEO_PEAK_SEARCH_HOURS = 120
+NEO_PEAK_REFINE_MINUTES = 60
+NEO_PEAK_REFINE_STEP_MINUTES = 5
 # Daily job: the claim must expire before the next run (interval minus jitter).
 NEO_UPDATE_LOCK_DURATION = timedelta(hours=20)
 
@@ -122,6 +133,68 @@ def estimate_peak_mag(h, dist_au):
     return h + 5.0 * math.log10(dist_au)
 
 
+def apparent_magnitude_hg(h, g, r_au, delta_au, earth_sun_au):
+    """Vectorized IAU H, G apparent magnitude (same model as minor_planet_utils._get_apparent_magnitude_hg)."""
+    r_au = np.asarray(r_au, dtype=float)
+    delta_au = np.asarray(delta_au, dtype=float)
+    earth_sun_au = np.asarray(earth_sun_au, dtype=float)
+    cos_phase = np.clip((r_au ** 2 + delta_au ** 2 - earth_sun_au ** 2) / (2.0 * r_au * delta_au), -1.0, 1.0)
+    tan_half_phase = np.tan(np.arccos(cos_phase) / 2.0)
+    phi1 = np.exp(-3.33 * tan_half_phase ** 0.63)
+    phi2 = np.exp(-1.87 * tan_half_phase ** 1.22)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return h + 5.0 * np.log10(r_au * delta_au) - 2.5 * np.log10((1.0 - g) * phi1 + g * phi2)
+
+
+def _sun_earth_body_distances(body, t, sun, earth):
+    """
+    Asteroid-Sun, asteroid-Earth and Earth-Sun distances in au from geometric positions at the
+    same instants, so they form one triangle for the phase angle. observe() would apply a
+    different light time from the Earth and from the Sun, i.e. two different asteroid positions;
+    light time itself is irrelevant for brightness.
+    """
+    body_pos = body.at(t).position.au
+    earth_pos = earth.at(t).position.au
+    sun_pos = sun.at(t).position.au
+    return (np.linalg.norm(body_pos - sun_pos, axis=0),
+            np.linalg.norm(body_pos - earth_pos, axis=0),
+            np.linalg.norm(earth_pos - sun_pos, axis=0))
+
+
+def _magnitudes_at(body, base_time, offsets_seconds, ts, sun, earth, h, g):
+    t = ts.utc(base_time.year, base_time.month, base_time.day, base_time.hour, base_time.minute,
+               base_time.second + base_time.microsecond / 1e6 + offsets_seconds)
+    r, delta, earth_sun = _sun_earth_body_distances(body, t, sun, earth)
+    return t, apparent_magnitude_hg(h, g, r, delta, earth_sun)
+
+
+def compute_peak_brightness(mpc_row, approach_time, ts, eph):
+    """
+    Brightest geocentric apparent magnitude within +-NEO_PEAK_SEARCH_HOURS of approach_time,
+    from the MPC orbit (two-body) with the H, G phase model. Returns (peak_mag, peak_time UTC naive)
+    or (None, None) without a usable H.
+    """
+    h = mpc_row['magnitude_H']
+    if h is None or not np.isfinite(h):
+        return None, None
+    g = mpc_row['magnitude_G']
+    g = 0.15 if g is None or not np.isfinite(g) else float(g)
+    sun, earth = eph['sun'], eph['earth']
+    body = sun + mpc.mpcorb_orbit(mpc_row, ts, GM_SUN)
+
+    coarse = np.arange(-NEO_PEAK_SEARCH_HOURS, NEO_PEAK_SEARCH_HOURS + 1) * 3600.0
+    _, mags = _magnitudes_at(body, approach_time, coarse, ts, sun, earth, float(h), g)
+    if not np.isfinite(mags).any():
+        return None, None
+    best = coarse[int(np.nanargmin(mags))]
+
+    fine = best + np.arange(-NEO_PEAK_REFINE_MINUTES, NEO_PEAK_REFINE_MINUTES + 1,
+                            NEO_PEAK_REFINE_STEP_MINUTES) * 60.0
+    t, mags = _magnitudes_at(body, approach_time, fine, ts, sun, earth, float(h), g)
+    i = int(np.nanargmin(mags))
+    return float(mags[i]), t[i].utc_datetime().replace(tzinfo=None, microsecond=0)
+
+
 def build_designation_index(mpc_minor_planets):
     """Maps CAD designations ('433', '2026 UK') to packed MPC designations."""
     index = {}
@@ -155,23 +228,44 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
     window_end = window_start + timedelta(days=days)
     mpc_minor_planets = get_all_mpc_minor_planets()
     index = build_designation_index(mpc_minor_planets)
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
 
+    peak_seconds = 0.0
+    peak_count = 0
     try:
         new_rows = []
         unmatched = []
         for approach in approaches:
             if not window_start <= approach['approach_time'] < window_end:
                 continue  # CAD bounds are TDB; drop the ~69 s overlap outside the window
-            est_peak_mag = estimate_peak_mag(approach['h'], approach['dist_au'])
-            if est_peak_mag is None or est_peak_mag > mag_limit:
+            packed = index.get(approach['designation'])
+            mpc_row = mpc_minor_planets.loc[packed] if packed is not None else None
+            # Same H as the computed peak (MPC); CAD H only for asteroids without an orbit.
+            h = approach['h']
+            if mpc_row is not None and mpc_row['magnitude_H'] is not None and np.isfinite(mpc_row['magnitude_H']):
+                h = float(mpc_row['magnitude_H'])
+            est_peak_mag = estimate_peak_mag(h, approach['dist_au'])
+            if est_peak_mag is None or est_peak_mag > mag_limit + NEO_PREFILTER_MAG_MARGIN:
                 continue
             minor_planet = None
-            packed = index.get(approach['designation'])
+            peak_mag = peak_time = None
+            if mpc_row is not None:
+                started = time.perf_counter()
+                try:
+                    peak_mag, peak_time = compute_peak_brightness(mpc_row, approach['approach_time'], ts, eph)
+                except Exception:
+                    current_app.logger.exception('Peak brightness of {} failed.'.format(approach['designation']))
+                peak_seconds += time.perf_counter() - started
+                peak_count += 1
+            if (peak_mag if peak_mag is not None else est_peak_mag) > mag_limit:
+                continue
             if packed is not None:
-                minor_planet = _get_or_create_minor_planet(mpc_minor_planets.loc[packed])
+                minor_planet = _get_or_create_minor_planet(mpc_row)
             else:
                 unmatched.append(approach['designation'])
-            new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=est_peak_mag, **approach))
+            new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=est_peak_mag,
+                                             peak_mag=peak_mag, peak_time=peak_time, **approach))
 
         NeoCloseApproach.query.filter(
             NeoCloseApproach.approach_time >= window_start,
@@ -185,7 +279,8 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
 
     if unmatched:
         current_app.logger.warning('NEA close approaches without elements: {}'.format(', '.join(unmatched)))
-    current_app.logger.info('Stored {} NEA close approaches.'.format(len(new_rows)))
+    current_app.logger.info('Stored {} NEA close approaches; peak brightness of {} computed in {:.1f} s.'.format(
+        len(new_rows), peak_count, peak_seconds))
     return new_rows
 
 

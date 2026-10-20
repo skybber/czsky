@@ -64,7 +64,7 @@
                             {{ sort_header('dist', _('Distance')) }}
                             {{ sort_header('v_rel', _('Velocity'), 'mobile hidden') }}
                             {{ sort_header('h', 'H', 'mobile hidden') }}
-                            {{ sort_header('peak_mag', _('Est. max. brightness')) }}
+                            {{ sort_header('peak_mag', _('Max. brightness')) }}
                             <th class="mobile hidden">{{ _('Orbit') }}</th>
                             <th class="mobile hidden"><i class="lastfm icon"></i></th>
                             {{ sort_header('cur_mag', _('Brightness')) }}
@@ -96,7 +96,16 @@
                             </td>
                             <td class="mobile hidden">{{ "%.1f" | format(approach.v_rel_kms) if approach.v_rel_kms is not none else '-' }} km/s</td>
                             <td class="mobile hidden">{{ "%.1f" | format(approach.h) if approach.h is not none else '-' }}</td>
-                            <td>~{{ "%.1f" | format(approach.est_peak_mag) if approach.est_peak_mag is not none else '-' }}</td>
+                            <td>
+                                {% if approach.peak_mag is not none %}
+                                    {{ "%.1f" | format(approach.peak_mag) }}
+                                    <div class="mobile hidden" style="font-size: 0.85em; opacity: 0.7;">{{ approach.peak_time.strftime('%m-%d %H:%M') }}</div>
+                                {% elif approach.est_peak_mag is not none %}
+                                    <span title="{{ _('Rough estimate, the orbit is not available.') }}">~{{ "%.1f" | format(approach.est_peak_mag) }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
                             <td class="mobile hidden">{{ mp.orbit_type_name() or '' if mp else '' }}</td>
                             <td class="mobile hidden">{{ mp.cur_constellation_iau_code() or '' if mp else '' }}</td>
                             <td>{{ mp.displayed_mag() if mp else '' }}</td>
@@ -108,7 +117,7 @@
                 </table>
             </div>
             <p class="ui small grey text">
-                {{ _('Close approaches within 0.05 au from JPL CNEOS, estimated brightness up to 18 mag. The estimate ignores the phase angle. LD = lunar distance.') }}
+                {{ _('Close approaches within 0.05 au from JPL CNEOS with maximum brightness up to 18 mag. Maximum brightness and its time (UTC) are computed from the MPC orbit within 5 days of the approach; ~ marks a rough estimate for asteroids without an orbit. LD = lunar distance.') }}
             </p>
         </div>
     </div>

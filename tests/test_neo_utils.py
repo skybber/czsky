@@ -102,6 +102,10 @@ class EstimatePeakMagTestCase(unittest.TestCase):
 
 
 class NeoDbTestCase(unittest.TestCase):
+    # The synthetic approaches below do not match the real orbits, so by default the peak
+    # computed from the orbit is disabled and selection falls back to the rough estimate.
+    real_peak_brightness = False
+
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
@@ -119,6 +123,8 @@ class NeoDbTestCase(unittest.TestCase):
             patch.object(minor_planet_utils, 'MPCORB_EXCERPT_FILE', self.excerpt_file),
             patch.object(minor_planet_utils, 'NEA_FILE', self.nea_file),
         ]
+        if not self.real_peak_brightness:
+            self.patches.append(patch.object(neo_utils, 'compute_peak_brightness', return_value=(None, None)))
         for p in self.patches:
             p.start()
         minor_planet_utils.reset_minor_planets_cache()
@@ -142,6 +148,83 @@ class NeoDbTestCase(unittest.TestCase):
         }
 
 
+class PeakBrightnessTestCase(NeoDbTestCase):
+    real_peak_brightness = True
+
+    def _uk_approach(self):
+        # Real CNEOS approach of 2026 UK: 2026-10-19 04:37 UTC at 0.01947 au, H 25.0.
+        return self._approach('2026 UK', h=25.014, dist_au=0.01947) | {
+            'approach_time': datetime(2026, 10, 19, 4, 37, 3)}
+
+    def test_vectorized_magnitude_matches_scalar_model(self):
+        for r, delta, earth_sun in [(1.0, 0.02, 0.99), (1.2, 0.3, 1.0), (1.01, 0.05, 0.995)]:
+            self.assertAlmostEqual(
+                float(neo_utils.apparent_magnitude_hg(20.0, 0.15, r, delta, earth_sun)),
+                minor_planet_utils._get_apparent_magnitude_hg(20.0, 0.15, delta, r, earth_sun), places=6)
+
+    def test_peak_of_real_approach(self):
+        from skyfield.api import load
+        mpc_row = minor_planet_utils.find_mpc_minor_planet('K26U00K')
+        peak_mag, peak_time = neo_utils.compute_peak_brightness(
+            mpc_row, datetime(2026, 10, 19, 4, 37, 3), load.timescale(builtin=True), load('de421.bsp'))
+
+        # Phase makes it fainter than the rough estimate (~16.5) and the peak need not be at closest approach.
+        self.assertGreater(peak_mag, estimate_peak_mag(25.014, 0.01947))
+        self.assertLess(peak_mag, 18.0)
+        self.assertLess(abs((peak_time - datetime(2026, 10, 19, 4, 37)).total_seconds()), 5 * 86400)
+        self.assertEqual(peak_time.microsecond, 0)
+
+    def test_store_saves_computed_peak_and_filters_by_it(self):
+        store_close_approaches([self._uk_approach()], datetime(2026, 10, 19, 0, 0))
+        approach = NeoCloseApproach.query.one()
+        self.assertIsNotNone(approach.peak_mag)
+        self.assertIsNotNone(approach.peak_time)
+        self.assertEqual(approach.best_peak_mag(), approach.peak_mag)
+
+        NeoCloseApproach.query.delete()
+        db.session.commit()
+        store_close_approaches([self._uk_approach()], datetime(2026, 10, 19, 0, 0),
+                               mag_limit=approach.peak_mag - 0.1)
+        # The rough estimate (~16.5) passes, the computed peak does not.
+        self.assertEqual(NeoCloseApproach.query.count(), 0)
+
+    def test_phase_geometry_is_one_consistent_triangle(self):
+        import numpy as np
+        from skyfield.api import load
+        from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
+        from skyfield.data import mpc
+        ts, eph = load.timescale(builtin=True), load('de421.bsp')
+        sun, earth = eph['sun'], eph['earth']
+        body = sun + mpc.mpcorb_orbit(minor_planet_utils.find_mpc_minor_planet('K26U00K'), ts, GM_SUN)
+        t = ts.utc(2026, 10, 19, np.arange(0, 24))
+
+        r, delta, earth_sun = neo_utils._sun_earth_body_distances(body, t, sun, earth)
+
+        # The phase angle from the three distances equals the angle between the vectors
+        # from the asteroid to the Sun and to the Earth at the same instant.
+        to_sun = sun.at(t).position.au - body.at(t).position.au
+        to_earth = earth.at(t).position.au - body.at(t).position.au
+        cos_vectors = np.sum(to_sun * to_earth, axis=0) / (np.linalg.norm(to_sun, axis=0) * np.linalg.norm(to_earth, axis=0))
+        cos_distances = (r ** 2 + delta ** 2 - earth_sun ** 2) / (2 * r * delta)
+        np.testing.assert_allclose(cos_distances, cos_vectors, atol=1e-9)
+
+    def test_prefilter_uses_mpc_h_for_matched_asteroids(self):
+        # CAD H much fainter than MPC H (24.83): the CAD-based estimate (~18.55) would drop it
+        # before the peak (~17) is computed.
+        store_close_approaches([self._uk_approach() | {'h': 27.1}], datetime(2026, 10, 19, 0, 0))
+        approach = NeoCloseApproach.query.one()
+        self.assertLess(approach.peak_mag, 18.0)
+        mpc_h = minor_planet_utils.find_mpc_minor_planet('K26U00K')['magnitude_H']
+        self.assertAlmostEqual(approach.est_peak_mag, estimate_peak_mag(mpc_h, 0.01947), places=6)
+
+    def test_failed_peak_computation_falls_back_to_estimate(self):
+        with patch.object(neo_utils, 'compute_peak_brightness', side_effect=RuntimeError('boom')):
+            store_close_approaches([self._uk_approach()], datetime(2026, 10, 19, 0, 0))
+        approach = NeoCloseApproach.query.one()
+        self.assertIsNone(approach.peak_mag)
+        self.assertEqual(approach.best_peak_mag(), approach.est_peak_mag)
+
+
 class DesignationIndexTestCase(NeoDbTestCase):
     def test_numbered_and_provisional_designations(self):
         index = build_designation_index(minor_planet_utils.get_all_mpc_minor_planets())
@@ -156,7 +239,7 @@ class StoreCloseApproachesTestCase(NeoDbTestCase):
             self._approach('2026 UK', h=24.8, dist_au=0.02),      # ~16.3 mag
             self._approach('2026 XX', h=22.0, dist_au=0.01),      # not in NEA.txt
             self._approach('1862', h=16.1, dist_au=0.04),         # ~9.1 mag
-            self._approach('433', h=29.0, dist_au=0.05),          # ~22.5 mag, too faint
+            self._approach('2026 YY', h=29.0, dist_au=0.05),      # ~22.5 mag, too faint
         ], self.window_start)
 
         approaches = {a.designation: a for a in NeoCloseApproach.query.all()}
@@ -168,7 +251,7 @@ class StoreCloseApproachesTestCase(NeoDbTestCase):
         self.assertTrue(uk.is_neo)
         self.assertEqual(uk.orbit_type, 3)
         self.assertTrue(approaches['1862'].minor_planet.is_pha)
-        self.assertIsNone(MinorPlanet.query.filter_by(mpc_designation='00433').first())
+        self.assertNotIn('2026 YY', approaches)
 
     def test_repeated_run_is_idempotent(self):
         approaches = [self._approach('2026 UK', h=24.8), self._approach('1862', h=16.1)]

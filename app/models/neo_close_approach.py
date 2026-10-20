@@ -21,9 +21,17 @@ class NeoCloseApproach(db.Model):
     h = db.Column(db.Float)
     t_sigma = db.Column(db.String(16))
     orbit_id = db.Column(db.String(16))
+    # Rough H + 5 log10(delta) at closest approach, no phase; used to preselect approaches
+    # and shown only when the orbit is not available.
     est_peak_mag = db.Column(db.Float)
+    # Brightest apparent magnitude around the approach, computed from the MPC orbit with phase angle.
+    peak_mag = db.Column(db.Float)
+    peak_time = db.Column(db.DateTime)  # UTC
 
     minor_planet = db.relationship('MinorPlanet', lazy='joined')
+
+    def best_peak_mag(self):
+        return self.peak_mag if self.peak_mag is not None else self.est_peak_mag
 
     def dist_ld(self):
         return self.dist_au * AU_KM / LUNAR_DISTANCE_KM
