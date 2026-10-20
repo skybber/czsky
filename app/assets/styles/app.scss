@@ -802,3 +802,11 @@ table.selectable tr:hover {
     transform: rotate(90deg);
   }
 }
+
+/* Table header row with column groups above the column labels (e.g. near-Earth asteroids):
+   compact, so it does not compete with the column header row. Background per theme. */
+.ui.table thead tr.group-header th {
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  font-size: 0.85em;
+}

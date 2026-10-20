@@ -186,3 +186,11 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#505667!important;col
 .ui.ui.form .fields.error .field label {
  color: #ffb6b6
 }
+/* Table header row with column groups: lighter than the column header row (#404552) */
+.ui.table thead tr.group-header th{background:#4c5262!important}
+/* Brightness spectrum: each group cell a step lighter than the previous one */
+.ui.table thead tr.group-header th:nth-child(1){background:#4c5262!important}
+.ui.table thead tr.group-header th:nth-child(2){background:#525869!important}
+.ui.table thead tr.group-header th:nth-child(3){background:#585e70!important}
+.ui.table thead tr.group-header th:nth-child(4){background:#5e6477!important}
+.ui.table thead tr.group-header th:nth-child(5){background:#646a7e!important}

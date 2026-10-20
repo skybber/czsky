@@ -34,8 +34,10 @@ NEO_SORT_DEF = {
     'date': NeoCloseApproach.approach_time,
     'dist': NeoCloseApproach.dist_au,
     'v_rel': NeoCloseApproach.v_rel_kms,
-    'h': NeoCloseApproach.h,
+    # Size by H (MPC, CAD without an orbit): ascending = largest first.
+    'size': func.coalesce(MinorPlanet.magnitude_H, NeoCloseApproach.h),
     'peak_mag': NEO_PEAK_MAG,
+    'peak_time': NeoCloseApproach.peak_time,
     'cur_mag': MinorPlanet.eval_mag,
 }
 # Observers care first about what they can see.
@@ -107,7 +109,8 @@ def near_earth_asteroids():
     filter_args = {
         'period': form.period.data,
         'dist_max_ld': form.dist_max_ld.data,
-        'maglim': form.maglim.data,
+        # '' keeps a cleared limit; omitted, the default 16 mag would apply again.
+        'maglim': form.maglim.data if form.maglim.data is not None else '',
         'pha_only': 'y' if form.pha_only.data else None,
     }
     return render_template('main/solarsystem/near_earth_asteroids.html', approaches=approaches, form=form,

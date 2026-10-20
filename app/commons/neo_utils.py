@@ -26,16 +26,18 @@ from imports.import_minor_planets import assign_minor_planet_from_mpc_row, _int_
 CAD_API_URL = 'https://ssd-api.jpl.nasa.gov/cad.api'
 CAD_REQUIRED_FIELDS = ('des', 'orbit_id', 'jd', 'dist', 'dist_min', 'dist_max', 'v_rel', 't_sigma_f', 'h')
 
-NEO_APPROACH_DAYS = 60
-NEO_APPROACH_DIST_MAX_AU = 0.05
+# Like the van Buitenen NEO list: the next 3 months.
+NEO_APPROACH_DAYS = 90
+# Not only very close passes: large asteroids are bright also from a few tenths of au.
+NEO_APPROACH_DIST_MAX_AU = 0.3
 NEO_PEAK_MAG_LIMIT = 18.0
 # The rough estimate ignores the phase angle, so it is brighter than the computed peak
 # (with r ~ 1 AU); preselect with a margin and decide by the computed peak.
 NEO_PREFILTER_MAG_MARGIN = 0.5
-# The brightest moment is searched in +-5 days around the approach, hourly, then refined.
-NEO_PEAK_SEARCH_HOURS = 120
-NEO_PEAK_REFINE_MINUTES = 60
-NEO_PEAK_REFINE_STEP_MINUTES = 5
+# The brightest moment is searched within +-30 days of the closest approach (for distant
+# approaches the phase angle, not the distance, decides), refined in steps:
+# (half window, step) in minutes.
+NEO_PEAK_SEARCH_STAGES = ((30 * 24 * 60, 6 * 60), (6 * 60, 15), (15, 1))
 # Daily job: the claim must expire before the next run (interval minus jitter).
 NEO_UPDATE_LOCK_DURATION = timedelta(hours=20)
 
@@ -170,7 +172,7 @@ def _magnitudes_at(body, base_time, offsets_seconds, ts, sun, earth, h, g):
 
 def compute_peak_brightness(mpc_row, approach_time, ts, eph):
     """
-    Brightest geocentric apparent magnitude within +-NEO_PEAK_SEARCH_HOURS of approach_time,
+    Brightest geocentric apparent magnitude within +-30 days of approach_time (NEO_PEAK_SEARCH_STAGES),
     from the MPC orbit (two-body) with the H, G phase model. Returns (peak_mag, peak_time UTC naive)
     or (None, None) without a usable H.
     """
@@ -182,16 +184,14 @@ def compute_peak_brightness(mpc_row, approach_time, ts, eph):
     sun, earth = eph['sun'], eph['earth']
     body = sun + mpc.mpcorb_orbit(mpc_row, ts, GM_SUN)
 
-    coarse = np.arange(-NEO_PEAK_SEARCH_HOURS, NEO_PEAK_SEARCH_HOURS + 1) * 3600.0
-    _, mags = _magnitudes_at(body, approach_time, coarse, ts, sun, earth, float(h), g)
-    if not np.isfinite(mags).any():
-        return None, None
-    best = coarse[int(np.nanargmin(mags))]
-
-    fine = best + np.arange(-NEO_PEAK_REFINE_MINUTES, NEO_PEAK_REFINE_MINUTES + 1,
-                            NEO_PEAK_REFINE_STEP_MINUTES) * 60.0
-    t, mags = _magnitudes_at(body, approach_time, fine, ts, sun, earth, float(h), g)
-    i = int(np.nanargmin(mags))
+    best = 0.0
+    for half_window, step in NEO_PEAK_SEARCH_STAGES:
+        offsets = best + np.arange(-half_window, half_window + step, step) * 60.0
+        t, mags = _magnitudes_at(body, approach_time, offsets, ts, sun, earth, float(h), g)
+        if not np.isfinite(mags).any():
+            return None, None
+        i = int(np.nanargmin(mags))
+        best = offsets[i]
     return float(mags[i]), t[i].utc_datetime().replace(tzinfo=None, microsecond=0)
 
 

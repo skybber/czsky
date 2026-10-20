@@ -225,6 +225,19 @@ class PeakBrightnessTestCase(NeoDbTestCase):
         self.assertEqual(approach.best_peak_mag(), approach.est_peak_mag)
 
 
+class DiameterTestCase(unittest.TestCase):
+    def test_diameter_range_from_h(self):
+        self.assertEqual(NeoCloseApproach(h=22.0).diameter_range_str(), '110–240 m')  # PHA size limit ~140 m
+        self.assertEqual(NeoCloseApproach(h=28.0).diameter_range_str(), '6.7–15 m')
+        self.assertEqual(NeoCloseApproach(h=16.68).diameter_range_str(), '1.2–2.7 km')
+        self.assertEqual(NeoCloseApproach(h=None).diameter_range_str(), '')
+
+    def test_mpc_h_takes_precedence_over_cad_h(self):
+        approach = NeoCloseApproach(h=27.1, minor_planet=MinorPlanet(magnitude_H=22.0))
+        self.assertEqual(approach.abs_magnitude(), 22.0)
+        self.assertEqual(approach.diameter_range_str(), '110–240 m')
+
+
 class DesignationIndexTestCase(NeoDbTestCase):
     def test_numbered_and_provisional_designations(self):
         index = build_designation_index(minor_planet_utils.get_all_mpc_minor_planets())
@@ -472,13 +485,49 @@ class NearEarthAsteroidsViewTestCase(NeoDbTestCase):
         db.session.commit()
 
     def _listed_order(self, query=''):
-        html = self.app.test_client().get('/near-earth-asteroids?period=30' + query).get_data(as_text=True)
+        # maglim= clears the default 16 mag limit, so all three fixtures are listed.
+        html = self.app.test_client().get('/near-earth-asteroids?period=30&maglim=' + query).get_data(as_text=True)
         tbody = html[html.index('<tbody>'):]
         return sorted(['(1862) Apollo', '2026 UK', '2026 XX'], key=tbody.index)
 
     def test_default_sort_is_brightest_first(self):
         self._store_sort_fixture()
         self.assertEqual(self._listed_order(), ['(1862) Apollo', '2026 XX', '2026 UK'])
+
+    def test_default_limit_is_16_mag_and_can_be_cleared(self):
+        self._store_sort_fixture()
+        client = self.app.test_client()
+        tbody = lambda url: (lambda html: html[html.index('<tbody>'):])(client.get(url).get_data(as_text=True))
+
+        default = tbody('/near-earth-asteroids?period=30')
+        self.assertIn('(1862) Apollo', default)
+        self.assertNotIn('2026 UK', default)  # ~16.3 mag
+        self.assertIn('2026 UK', tbody('/near-earth-asteroids?period=30&maglim='))
+
+    def test_cleared_limit_survives_sorting(self):
+        self._store_sort_fixture()
+        html = self.app.test_client().get('/near-earth-asteroids?period=30&maglim=').get_data(as_text=True)
+        link = html[html.index('sortby=date') - 200:html.index('sortby=date') + 200]
+        self.assertRegex(link, r'sortby=date[^"]*maglim="')
+
+    def test_columns_are_grouped_now_peak_approach(self):
+        self._store_sort_fixture()
+        html = self.app.test_client().get('/near-earth-asteroids?period=30&maglim=').get_data(as_text=True)
+        header = html[html.index('<thead>'):html.index('</thead>')]
+        order = ['name', 'cur_mag', 'peak_mag', 'peak_time', 'date', 'dist', 'v_rel', 'size']
+        # The current sort column links to the reversed direction ('-peak_mag').
+        position = lambda column: header.index('sortby=' + column) if 'sortby=' + column in header \
+            else header.index('sortby=-' + column)
+        self.assertEqual(sorted(order, key=position), order)
+        self.assertLess(header.index('Teď') if 'Teď' in header else header.index('Now'),
+                        header.index('Průlet') if 'Průlet' in header else header.index('Approach'))
+        tbody = html[html.index('<tbody>'):]
+        self.assertIn('km', tbody.split('(1862) Apollo', 1)[1].split('</tr>', 1)[0])  # Apollo H 16.1 -> km size
+
+    def test_sort_by_size_largest_first(self):
+        self._store_sort_fixture()
+        # MPC H: Apollo 16.09, 2026 UK 24.83; unmatched 2026 XX CAD H 22.0
+        self.assertEqual(self._listed_order('&sortby=size'), ['(1862) Apollo', '2026 XX', '2026 UK'])
 
     def test_sortable_columns(self):
         self._store_sort_fixture()

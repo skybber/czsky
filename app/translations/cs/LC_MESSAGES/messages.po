@@ -4011,5 +4011,23 @@ msgstr "Max. jas"
 msgid "Rough estimate, the orbit is not available."
 msgstr "Hrubý odhad, dráha není k dispozici."
 
-msgid "Close approaches within 0.05 au from JPL CNEOS with maximum brightness up to 18 mag. Maximum brightness and its time (UTC) are computed from the MPC orbit within 5 days of the approach; ~ marks a rough estimate for asteroids without an orbit. LD = lunar distance."
-msgstr "Přiblížení do 0,05 au podle JPL CNEOS s maximální jasností do 18 mag. Maximální jas a jeho čas (UTC) jsou spočítané z dráhy MPC v rozmezí 5 dní od přiblížení; ~ označuje hrubý odhad u planetek bez dráhy. LD = vzdálenost Měsíce."
+msgid "90 days"
+msgstr "90 dní"
+
+msgid "Close approaches within 0.3 au in the next 90 days from JPL CNEOS with maximum brightness up to 18 mag; clear the magnitude limit to see all of them. Maximum brightness and its time (UTC) are computed from the MPC orbit within 30 days of the approach; ~ marks a rough estimate for asteroids without an orbit. Size is estimated from the absolute magnitude H for albedo 0.25 to 0.05. LD = lunar distance."
+msgstr "Přiblížení do 0,3 au v příštích 90 dnech podle JPL CNEOS s maximální jasností do 18 mag; po vymazání limitní magnitudy se zobrazí všechna. Maximální jas a jeho čas (UTC) jsou spočítané z dráhy MPC v rozmezí 30 dní od přiblížení; ~ označuje hrubý odhad u planetek bez dráhy. Velikost je odhad z absolutní magnitudy H pro albedo 0,25 až 0,05. LD = vzdálenost Měsíce."
+
+msgid "Now"
+msgstr "Teď"
+
+msgid "Approach"
+msgstr "Průlet"
+
+msgid "Brightness now"
+msgstr "Jas teď"
+
+msgid "Time"
+msgstr "Čas"
+
+msgid "Time of max."
+msgstr "Čas max."

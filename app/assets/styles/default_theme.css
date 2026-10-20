@@ -1,1 +1,9 @@
 .ui.active.toggle.button { background-color: #008000 !important; }
+/* Table header row with column groups: darker than the column header row (#f9fafb) */
+.ui.table thead tr.group-header th{background:#eceef0!important}
+/* Brightness spectrum: each group cell a step darker than the previous one */
+.ui.table thead tr.group-header th:nth-child(1){background:#eceef0!important}
+.ui.table thead tr.group-header th:nth-child(2){background:#e5e8eb!important}
+.ui.table thead tr.group-header th:nth-child(3){background:#dee2e6!important}
+.ui.table thead tr.group-header th:nth-child(4){background:#d7dce1!important}
+.ui.table thead tr.group-header th:nth-child(5){background:#d0d6dc!important}

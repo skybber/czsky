@@ -211,3 +211,11 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .fchart-separator-theme {
     background-color: #be7e7e !important;
 }
+/* Table header row with column groups: lighter than the column header row (#2b1919) */
+.ui.table thead tr.group-header th{background:#3b2222!important}
+/* Brightness spectrum: each group cell a step lighter than the previous one */
+.ui.table thead tr.group-header th:nth-child(1){background:#3b2222!important}
+.ui.table thead tr.group-header th:nth-child(2){background:#422727!important}
+.ui.table thead tr.group-header th:nth-child(3){background:#492c2c!important}
+.ui.table thead tr.group-header th:nth-child(4){background:#503131!important}
+.ui.table thead tr.group-header th:nth-child(5){background:#573636!important}

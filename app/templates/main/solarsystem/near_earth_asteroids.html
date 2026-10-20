@@ -1,9 +1,15 @@
 {% extends 'layouts/base.html' %}
 
-{% macro sort_header(column, label, extra_class='') %}
+{# mobile_label replaces label on phones, where the group header row is hidden. #}
+{% macro sort_header(column, label, extra_class='', mobile_label=none) %}
     <th{% if extra_class %} class="{{ extra_class }}"{% endif %}>
         <a href="{{ url_for('main_neo.near_earth_asteroids', sortby=table_sort[column].sort, **filter_args) }}" style="color: inherit;">
-            {{ label }} {{ table_sort[column].icon | safe }}
+            {% if mobile_label %}
+                <span class="mobile hidden">{{ label }}</span><span class="mobile only">{{ mobile_label }}</span>
+            {% else %}
+                {{ label }}
+            {% endif %}
+            {{ table_sort[column].icon | safe }}
         </a>
     </th>
 {% endmacro %}
@@ -59,16 +65,25 @@
             <div style="overflow-x: scroll;width: 100%">
                 <table class="ui unstackable selectable celled table">
                     <thead>
+                        {# Groups; hidden on phones, where the column labels say it all. #}
+                        <tr class="group-header mobile hidden">
+                            <th></th>
+                            <th colspan="2" class="center aligned">{{ _('Now') }}</th>
+                            <th colspan="2" class="center aligned">{{ _('Max. brightness') }}</th>
+                            <th colspan="3" class="center aligned">{{ _('Approach') }}</th>
+                            <th colspan="2"></th>
+                        </tr>
                         <tr>
                             {{ sort_header('name', _('Name')) }}
-                            {{ sort_header('date', _('Date') ~ ' (UTC)') }}
+                            {{ sort_header('cur_mag', _('Brightness'), mobile_label=_('Brightness now')) }}
+                            <th class="mobile hidden"><i class="lastfm icon"></i></th>
+                            {{ sort_header('peak_mag', _('Brightness'), mobile_label=_('Max. brightness')) }}
+                            {{ sort_header('peak_time', _('Time') ~ ' (UTC)', mobile_label=_('Time of max.') ~ ' (UTC)') }}
+                            {{ sort_header('date', _('Date') ~ ' (UTC)', 'mobile hidden') }}
                             {{ sort_header('dist', _('Distance')) }}
                             {{ sort_header('v_rel', _('Velocity'), 'mobile hidden') }}
-                            {{ sort_header('h', 'H', 'mobile hidden') }}
-                            {{ sort_header('peak_mag', _('Max. brightness')) }}
+                            {{ sort_header('size', _('Size'), 'mobile hidden') }}
                             <th class="mobile hidden">{{ _('Orbit') }}</th>
-                            <th class="mobile hidden"><i class="lastfm icon"></i></th>
-                            {{ sort_header('cur_mag', _('Brightness')) }}
                         </tr>
                     </thead>
                     <tbody>
@@ -87,7 +102,22 @@
                                     {{ approach.designation }}
                                 {% endif %}
                             </td>
-                            <td>{{ approach.approach_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            {# Now #}
+                            <td>{{ mp.displayed_mag() if mp else '' }}</td>
+                            <td class="mobile hidden">{{ mp.cur_constellation_iau_code() or '' if mp else '' }}</td>
+                            {# Max. brightness #}
+                            <td>
+                                {% if approach.peak_mag is not none %}
+                                    {{ "%.1f" | format(approach.peak_mag) }}
+                                {% elif approach.est_peak_mag is not none %}
+                                    <span title="{{ _('Rough estimate, the orbit is not available.') }}">~{{ "%.1f" | format(approach.est_peak_mag) }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ approach.peak_time.strftime('%Y-%m-%d %H:%M') if approach.peak_time else '' }}</td>
+                            {# Approach #}
+                            <td class="mobile hidden">{{ approach.approach_time.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
                                 {{ "%.1f" | format(approach.dist_ld()) }} LD
                                 <span class="mobile hidden">({{ "%.4f" | format(approach.dist_au) }}au)</span>
@@ -96,30 +126,21 @@
                                 {% endif %}
                             </td>
                             <td class="mobile hidden">{{ "%.1f" | format(approach.v_rel_kms) if approach.v_rel_kms is not none else '-' }} km/s</td>
-                            <td class="mobile hidden">{{ "%.1f" | format(approach.h) if approach.h is not none else '-' }}</td>
-                            <td>
-                                {% if approach.peak_mag is not none %}
-                                    {{ "%.1f" | format(approach.peak_mag) }}
-                                    <div class="mobile hidden" style="font-size: 0.85em; opacity: 0.7;">{{ approach.peak_time.strftime('%m-%d %H:%M') }}</div>
-                                {% elif approach.est_peak_mag is not none %}
-                                    <span title="{{ _('Rough estimate, the orbit is not available.') }}">~{{ "%.1f" | format(approach.est_peak_mag) }}</span>
-                                {% else %}
-                                    -
-                                {% endif %}
+                            {# Physical #}
+                            <td class="mobile hidden"{% if approach.abs_magnitude() is not none %} title="H = {{ "%.1f" | format(approach.abs_magnitude()) }}"{% endif %}>
+                                {{ approach.diameter_range_str() }}
                             </td>
                             <td class="mobile hidden">{{ mp.orbit_type_name() or '' if mp else '' }}</td>
-                            <td class="mobile hidden">{{ mp.cur_constellation_iau_code() or '' if mp else '' }}</td>
-                            <td>{{ mp.displayed_mag() if mp else '' }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="9">{{ _('No close approaches in the selected period.') }}</td></tr>
+                        <tr><td colspan="10">{{ _('No close approaches in the selected period.') }}</td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
             </form>
             <p class="ui small grey text">
-                {{ _('Close approaches within 0.05 au from JPL CNEOS with maximum brightness up to 18 mag. Maximum brightness and its time (UTC) are computed from the MPC orbit within 5 days of the approach; ~ marks a rough estimate for asteroids without an orbit. LD = lunar distance.') }}
+                {{ _('Close approaches within 0.3 au in the next 90 days from JPL CNEOS with maximum brightness up to 18 mag; clear the magnitude limit to see all of them. Maximum brightness and its time (UTC) are computed from the MPC orbit within 30 days of the approach; ~ marks a rough estimate for asteroids without an orbit. Size is estimated from the absolute magnitude H for albedo 0.25 to 0.05. LD = lunar distance.') }}
             </p>
         </div>
     </div>
