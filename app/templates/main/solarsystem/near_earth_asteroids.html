@@ -53,7 +53,7 @@
                     <div class="ui item">
                         <div class="ui checkbox">
                             {{ form.pha_only(onchange='this.form.submit()') }}
-                            <label for="{{ form.pha_only.id }}">{{ _('PHA only') }}</label>
+                            <label for="{{ form.pha_only.id }}" title="{{ _("Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact.") }}">{{ _('PHA only') }}</label>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                             <td>
                                 {% if mp %}
                                     <a href="{{ minor_planet_url }}">{{ mp.designation }}</a>
-                                    {% if mp.is_pha %}<span class="ui mini red label">PHA</span>{% endif %}
+                                    {% if mp.is_pha %}<span class="ui mini red label" title="{{ _("Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact.") }}">PHA</span>{% endif %}
                                 {% else %}
                                     {{ approach.designation }}
                                 {% endif %}
@@ -141,6 +141,9 @@
             </form>
             <p class="ui small grey text">
                 {{ _('Close approaches within 0.3 au in the next 90 days from JPL CNEOS with maximum brightness up to 18 mag; clear the magnitude limit to see all of them. Maximum brightness and its time (UTC) are computed from the MPC orbit within 30 days of the approach; ~ marks a rough estimate for asteroids without an orbit. Size is estimated from the absolute magnitude H for albedo 0.25 to 0.05. LD = lunar distance.') }}
+            </p>
+            <p class="ui small grey text">
+                PHA – {{ _("Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact.") }}
             </p>
         </div>
     </div>

@@ -91,7 +91,7 @@
             <td>
                 {{ _('Near-Earth asteroid') }}{% if minor_planet.orbit_type_name() %} ({{ minor_planet.orbit_type_name() }}){% endif %}
                 {% if minor_planet.is_pha %}
-                    <span class="ui tiny red label" title="{{ _('Potentially hazardous asteroid') }}">PHA</span>
+                    <span class="ui tiny red label" title="{{ _("Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact.") }}">PHA</span>
                 {% endif %}
             </td>
         </tr>

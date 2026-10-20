@@ -111,7 +111,7 @@
                     <tr class="sw-onclick" onclick="window.location.href = '{{ minor_planet_url }}';">
                         <td>
                             <a href="{{ minor_planet_url }}">{{ mp.designation }}</a>
-                            {% if mp.is_pha %}<span class="ui mini red label">PHA</span>{% elif mp.is_neo %}<span class="ui mini label">NEA</span>{% endif %}
+                            {% if mp.is_pha %}<span class="ui mini red label" title="{{ _("Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact.") }}">PHA</span>{% elif mp.is_neo %}<span class="ui mini label" title="{{ _('Near-Earth asteroid') }}">NEA</span>{% endif %}
                         </td>
                         <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>
                         <td class="mobile hidden">{{ mp.cur_dec_str_short() }}</td>

@@ -3966,9 +3966,6 @@ msgstr "Bez blízkozemních"
 msgid "Near-Earth asteroid"
 msgstr "Blízkozemní planetka"
 
-msgid "Potentially hazardous asteroid"
-msgstr "Potenciálně nebezpečná planetka"
-
 msgid "Close approaches to Earth"
 msgstr "Přiblížení k Zemi"
 
@@ -4031,3 +4028,6 @@ msgstr "Čas"
 
 msgid "Time of max."
 msgstr "Čas max."
+
+msgid "Potentially hazardous asteroid: its orbit comes within 0.05 au of the Earth's orbit and it is about 140 m or larger (H 22 or brighter). It does not mean an expected impact."
+msgstr "Potenciálně nebezpečná planetka: její dráha se přibližuje k dráze Země na méně než 0,05 au a měří zhruba 140 m a víc (H 22 nebo jasnější). Neznamená to očekávanou srážku."

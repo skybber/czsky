@@ -471,6 +471,9 @@ class NearEarthAsteroidsViewTestCase(NeoDbTestCase):
         html = client.get('/near-earth-asteroids?period=60&pha_only=y').get_data(as_text=True)
         self.assertIn('(1862) Apollo', html)
         self.assertNotIn('2026 XX', html)
+        # PHA is explained in the label tooltip and below the table.
+        self.assertRegex(html, r'class="ui mini red label" title="[^"]*0[.,]05 au[^"]*">PHA</span>')
+        self.assertIn('PHA –', html)
 
     def _store_sort_fixture(self):
         now = datetime.utcnow()
