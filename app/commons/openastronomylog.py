@@ -46,12 +46,14 @@ else:
 def parsexml_(infile, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
-        #   we ignore comments.
+        #   we ignore comments. OAL uploads must not resolve DTD entities.
         try:
-            parser = etree_.ETCompatXMLParser(recover=True)
+            parser = etree_.ETCompatXMLParser(
+                recover=True, resolve_entities=False, load_dtd=False, no_network=True)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser(recover=True)
+            parser = etree_.XMLParser(
+                recover=True, resolve_entities=False, load_dtd=False, no_network=True)
     try:
         if isinstance(infile, os.PathLike):
             infile = os.path.join(infile)
@@ -63,12 +65,14 @@ def parsexml_(infile, parser=None, **kwargs):
 def parsexmlstring_(instring, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
-        #   we ignore comments.
+        #   we ignore comments. OAL uploads must not resolve DTD entities.
         try:
-            parser = etree_.ETCompatXMLParser(recover=True)
+            parser = etree_.ETCompatXMLParser(
+                recover=True, resolve_entities=False, load_dtd=False, no_network=True)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser(recover=True)
+            parser = etree_.XMLParser(
+                recover=True, resolve_entities=False, load_dtd=False, no_network=True)
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
 
