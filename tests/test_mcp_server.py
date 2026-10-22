@@ -26,6 +26,7 @@ class _DummyDso:
         self.major_axis = None
         self.minor_axis = None
         self.distance = None
+        self.redshift = None
         self.ra = 1.0
         self.dec = 2.0
 

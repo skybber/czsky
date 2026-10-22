@@ -91,6 +91,7 @@ def build_wishlist_item_detail(
             "majorAxis": dso.major_axis,
             "minorAxis": dso.minor_axis,
             "distance": dso.distance,
+            "redshift": dso.redshift,
         }
     elif item.double_star_id is not None and item.double_star is not None:
         double_star = item.double_star

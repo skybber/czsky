@@ -387,6 +387,7 @@ def import_quasars(supplement_file=QUASARS_SUPPLEMENT_FILE, quasars_data_file=QU
                     continue
                 dso.common_name = row['COMMON_NAME'] or None
                 dso.distance = float(row['DIST']) if row['DIST'] else None
+                dso.redshift = float(row['Z']) if row['Z'] else None
                 db.session.add(dso)
             db.session.commit()
         except IntegrityError as err:
@@ -405,15 +406,19 @@ def import_bright_quasars(bright_quasars_data_file):
                           show_dso_type=True, show_angular_size=False, show_minor_axis=False,
                           show_distance=True, distance_mult=1.0)
 
-    # list items already present in catalogue, e.g. 3C 273 as PGC41121
+    # list items already present in catalogue, e.g. 3C 273 as PGC41121, get common name and redshift
     with open(bright_quasars_data_file, encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             for row in reader:
                 dso = DeepskyObject.query.filter_by(name=row['DSO_NAME']).first()
-                if dso and not dso.common_name and row['COMMON_NAME']:
+                if dso is None:
+                    continue
+                if not dso.common_name and row['COMMON_NAME']:
                     dso.common_name = row['COMMON_NAME']
-                    db.session.add(dso)
+                if dso.redshift is None and row['Z']:
+                    dso.redshift = float(row['Z'])
+                db.session.add(dso)
             db.session.commit()
         except IntegrityError as err:
             print('\nIntegrity error {}'.format(err))

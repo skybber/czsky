@@ -123,6 +123,7 @@ def _format_dso(query: str, resolved: dict[str, Any]) -> dict[str, Any]:
                     "position_angle": dso.position_angle,
                     "axis_ratio": dso.axis_ratio,
                     "distance": dso.distance,
+                    "redshift": dso.redshift,
                     "catalogue_id": dso.catalogue_id,
                     "description": dso.descr,
                     "editor_description": user_descr.text if user_descr and user_descr.text else None,

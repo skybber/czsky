@@ -44,6 +44,7 @@ class DeepskyObject(db.Model):
     c_star_b_mag = db.Column(db.Float)
     c_star_v_mag = db.Column(db.Float)
     distance = db.Column(db.Float)
+    redshift = db.Column(db.Float)
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
     import_source = db.Column(db.Integer)

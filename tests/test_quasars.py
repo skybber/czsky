@@ -3,6 +3,7 @@ import math
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from fchart3.deepsky_object import DsoType
 from fchart3.hnsky_deepsky import import_hnsky_supplement as fchart3_import_hnsky_supplement
@@ -10,8 +11,10 @@ from fchart3.hnsky_deepsky import import_hnsky_supplement as fchart3_import_hnsk
 from app import create_app, db
 from app.commons.dso_utils import denormalize_dso_name, split_catalog_name
 from app.commons.search_sky_object_utils import search_dso_by_position
-from app.models import DeepskyObject
+from app.commons.simbad_utils import simbad_obj_to_deepsky
+from app.models import Constellation, DeepskyObject
 from imports import make_quasars as mq
+from imports.import_catalogues import import_catalogues
 
 SUPPLEMENT_FILE = mq.SUPPLEMENT_FILE
 QUASARS_DATA_FILE = mq.QUASARS_DATA_FILE
@@ -213,3 +216,49 @@ class SearchDsoByPositionTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RedshiftTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+        for key in ('EDITOR_USER_NAME_CS', 'EDITOR_USER_NAME_EN', 'ALL_EDITORS_USER_NAMES_CS', 'ALL_EDITORS_USER_NAMES_EN'):
+            self.app.config[key] = None
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+        import_catalogues('data/astro_catalogues.csv')
+        self.constellation = Constellation(iau_code='CVN', name='Canes Venatici', season='spring', label_ra=3.3, label_dec=0.7)
+        db.session.add(self.constellation)
+        db.session.commit()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    @staticmethod
+    def _simbad_obj(otype, redshift):
+        return {'main_id': 'Ton 618', 'ids': ['Ton 618'], 'ra': 3.21, 'dec': 0.55, 'otype': otype, 'otypes': [otype],
+                'morph_type': None, 'sp_type': None, 'galdim_majaxis': None, 'galdim_minaxis': None,
+                'galdim_angle': None, 'redshift': redshift, 'flux_v': 15.9}
+
+    def test_simbad_redshift_stored_for_quasars_only(self):
+        with patch('app.commons.simbad_utils.Constellation.get_constellation_by_position',
+                   return_value=self.constellation):
+            qso = DeepskyObject()
+            simbad_obj_to_deepsky(self._simbad_obj('Bla', 2.219), qso)
+            galaxy = DeepskyObject()
+            simbad_obj_to_deepsky(self._simbad_obj('G', -0.001), galaxy)
+        self.assertEqual((qso.type, qso.redshift), ('QSO', 2.219))
+        self.assertEqual(galaxy.type, 'GX')
+        self.assertIsNone(galaxy.redshift)
+
+    def test_redshift_shown_in_dso_info(self):
+        dso = DeepskyObject(name='QSO1228+3128', type='QSO', ra=3.21, dec=0.55, mag=15.87, common_name='Ton 618',
+                            distance=1.0844e10, redshift=2.219, constellation_id=self.constellation.id,
+                            catalogue_id=61)
+        db.session.add(dso)
+        db.session.commit()
+        response = self.app.test_client().get('/deepskyobject/QSO1228+3128/catalogue_data')
+        self.assertEqual(200, response.status_code)
+        self.assertIn('z = 2.219', response.get_data(as_text=True))

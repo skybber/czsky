@@ -175,6 +175,7 @@ SIMBAD_TO_CZSKY = {
     'GlC': 'GC',
     'QSO': 'QSO',
     'BLL': 'QSO',
+    'Bla': 'QSO',
     'ClG': 'GALCL',
     '**': 'STARS',
     'As*': 'AST',
@@ -243,7 +244,7 @@ def simbad_query(query):
     """
     Query Simbad by object identifier. Returns dict with normalized keys:
     main_id, ra, dec (radians), otype, otypes (list), ids (list), morph_type, sp_type,
-    galdim_majaxis, galdim_minaxis, galdim_angle, flux_v. Returns None if not found.
+    galdim_majaxis, galdim_minaxis, galdim_angle, redshift, flux_v. Returns None if not found.
     Successful results are cached in memory.
     """
     with _simbad_cache_lock:
@@ -265,7 +266,7 @@ def simbad_query(query):
 def _simbad_query_uncached(query):
     try:
         row = _query_simbad_row(query, ('otype', 'alltypes', 'ids', 'galdim_minaxis', 'galdim_majaxis', 'galdim_angle',
-                                        'sp_type', 'morph_type'))
+                                        'sp_type', 'morph_type', 'rvz_redshift'))
         if row is None:
             return None
         otypes = _to_str(row['alltypes.otypes'])
@@ -282,6 +283,7 @@ def _simbad_query_uncached(query):
             'galdim_majaxis': _to_rounded_float(row['galdim_majaxis']),
             'galdim_minaxis': _to_rounded_float(row['galdim_minaxis']),
             'galdim_angle': _to_rounded_float(row['galdim_angle']),
+            'redshift': _to_rounded_float(row['rvz_redshift'], 4),
             'flux_v': None,
         }
     except Exception:
@@ -387,6 +389,8 @@ def simbad_obj_to_deepsky(simbad, dso):
     dso.c_star_b_mag = None
     dso.c_star_v_mag = None
     dso.distance = None
+    # redshift of nearby objects is dominated by peculiar velocity
+    dso.redshift = simbad.get('redshift') if dso.type == 'QSO' else None
     dso.common_name = common_name
     dso.descr = None
     dso.import_source = IMPORT_SOURCE_SIMBAD
