@@ -59,7 +59,11 @@ def search_constellation(query):
     return constellation
 
 
+MIN_COMMON_NAME_QUERY_LENGTH = 3
+
+
 def search_dso(query):
+    is_name_query = False
     if (query.endswith('_1') or query.endswith('_2')) and query[:-2].isdigit():
         query = 'NGC' + query
     if (query.endswith('A') or query.endswith('B')) and query[:-1].isdigit():
@@ -70,10 +74,25 @@ def search_dso(query):
         query = 'NGC' + query
     else:
         query = urllib.parse.unquote(query)
+        is_name_query = True
 
     normalized_name = normalize_dso_name(denormalize_dso_name(query))
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+    if dso is None and is_name_query:
+        dso = search_dso_by_common_name(query)
     return dso
+
+
+def search_dso_by_common_name(query):
+    """
+    Find DSO by common name ignoring case and spaces, e.g. 'ton618' finds QSO1228+3128 (Ton 618).
+    Master objects are preferred.
+    """
+    key = (query or '').replace(' ', '').lower()
+    if len(key) < MIN_COMMON_NAME_QUERY_LENGTH:
+        return None
+    return DeepskyObject.query.filter(func.lower(func.replace(DeepskyObject.common_name, ' ', '')) == key) \
+        .order_by(DeepskyObject.master_id.isnot(None), DeepskyObject.id).first()
 
 
 def search_dso_by_position(ra, dec, dso_type, radius_arcsec=10.0):
