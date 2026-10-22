@@ -361,6 +361,7 @@
             {% if dso.c_star_v_mag %}<tr><td class="three wide">c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>{% endif %}
         {% endif %}
         {% if dso.distance %}<tr><td class="three wide">{{ _('distance') }}<td>{{ commons.convert_distance(dso.distance) }}</td></tr>{% endif %}
+        {% if dso.redshift is not none %}<tr><td class="three wide">{{ _('redshift') }}<td>z = {{ commons.convert_redshift(dso.redshift) }}</td></tr>{% endif %}
 
         {# <tr><td class="three wide">identifiers</td><td>{{ dso.identifiers }}</td></tr> #}
     </table>

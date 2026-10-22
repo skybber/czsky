@@ -57,6 +57,7 @@ class McpSkyObjectFormattersTestCase(unittest.TestCase):
             position_angle=None,
             axis_ratio=None,
             distance=None,
+            redshift=None,
             catalogue_id=1,
             descr="desc",
             import_source=1,

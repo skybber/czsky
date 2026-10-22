@@ -2145,6 +2145,10 @@ msgstr "Další názvy"
 msgid "distance"
 msgstr "vzdálenost"
 
+#: app/templates/main/catalogue/deepskyobject_info.html
+msgid "redshift"
+msgstr "rudý posuv"
+
 #: app/templates/main/catalogue/deepskyobject_info.html:380
 #: app/templates/main/catalogue/double_star_info.html:235
 #: app/templates/main/solarsystem/comet_info.html:128
