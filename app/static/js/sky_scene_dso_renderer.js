@@ -9,6 +9,8 @@
 
     const MIN_DSO_RADIUS_PX = U.MIN_DSO_RADIUS_PX;
     const MIN_PN_BASE_RADIUS_PX = U.mmToPx(1.0);
+    // diamond with center dot must stay readable for point-like quasars
+    const MIN_QSO_RADIUS_PX = U.mmToPx(1.5);
 
     function measureTextWidth(ctx, text) {
         if (!text) return 0;
@@ -63,7 +65,14 @@
     SkySceneDsoRenderer.prototype._dsoRadii = function (sceneCtx, dso) {
         const cached = this._frameRadii.get(dso);
         if (cached) return cached;
-        const result = U.dsoRadiiPx(sceneCtx.projection, sceneCtx.width, sceneCtx.height, dso);
+        let result = U.dsoRadiiPx(sceneCtx.projection, sceneCtx.width, sceneCtx.height, dso);
+        if (dso.type === 'QSO') {
+            // symbol, label placement and hit area share the enlarged radius
+            result = {
+                rLongPx: Math.max(result.rLongPx, MIN_QSO_RADIUS_PX),
+                rShortPx: Math.max(result.rShortPx, MIN_QSO_RADIUS_PX),
+            };
+        }
         this._frameRadii.set(dso, result);
         return result;
     };
@@ -287,6 +296,26 @@
         ctx.lineCap = 'butt';
         this._drawEllipse(ctx, centerPx.x, centerPx.y, r, r, 0.0, [3, 5]);
         ctx.restore();
+    };
+
+    // Quasar: diamond with a filled dot in the center, same as fchart3 quasar().
+    SkySceneDsoRenderer.prototype._drawQuasar = function (sceneCtx, centerPx, dso) {
+        const ctx = sceneCtx.backCtx;
+        const col = sceneCtx.getThemeColor('galaxy', [0.4, 0.8, 1.0]);
+        const r = this._dsoRadii(sceneCtx, dso).rLongPx;
+        this._setupStroke(ctx, col);
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(centerPx.x - r, centerPx.y);
+        ctx.lineTo(centerPx.x, centerPx.y - r);
+        ctx.lineTo(centerPx.x + r, centerPx.y);
+        ctx.lineTo(centerPx.x, centerPx.y + r);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle = U.rgba(col, 0.95);
+        ctx.beginPath();
+        ctx.arc(centerPx.x, centerPx.y, 0.25 * r, 0.0, 2.0 * Math.PI);
+        ctx.fill();
     };
 
     SkySceneDsoRenderer.prototype._drawUnknown = function (sceneCtx, centerPx, dso) {
@@ -678,7 +707,7 @@
             candidates = this._diffuseLabelCandidates(centerPx.x, centerPx.y, radii.rLongPx, fh, labelLength);
         } else if (dso.type === 'STARS') {
             candidates = this._asterismLabelCandidates(centerPx.x, centerPx.y, radii.rLongPx / Math.SQRT2, fh, labelLength);
-        } else if (dso.type === 'PN' || dso.type === 'OC' || dso.type === 'GC' || dso.type === 'SNR' || dso.type === 'GALCL') {
+        } else if (dso.type === 'PN' || dso.type === 'OC' || dso.type === 'GC' || dso.type === 'SNR' || dso.type === 'GALCL' || dso.type === 'QSO') {
             candidates = this._circularLabelCandidates(centerPx.x, centerPx.y, radii.rLongPx, fh, labelLength);
         } else {
             candidates = this._unknownLabelCandidates(centerPx.x, centerPx.y, radii.rLongPx, fh, labelLength);
@@ -894,6 +923,9 @@
                     break;
                 case 'GALCL':
                     this._drawGalaxyCluster(sceneCtx, centerPx, dso);
+                    break;
+                case 'QSO':
+                    this._drawQuasar(sceneCtx, centerPx, dso);
                     break;
                 default:
                     this._drawUnknown(sceneCtx, centerPx, dso);

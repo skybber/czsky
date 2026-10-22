@@ -68,7 +68,7 @@ CZSKY_TYPE_TO_SCENE = {
     "GALCL": "GALCL",  # Galaxy Cluster
     "AST": "STARS",    # Asterism
     "STARS": "STARS",
-    "QSO": "G",     # Quasar (render as galaxy)
+    "QSO": "QSO",   # Quasar
     # Types that are already compatible
     "G": "G",
     "N": "N",
