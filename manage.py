@@ -187,6 +187,7 @@ def import_dso_list():
     from imports.import_dso_lists import import_glahn_palomar_gc
     from imports.import_dso_lists import import_glahn_local_group
     from imports.import_dso_lists import import_minimistr_dn
+    from imports.import_dso_lists import import_bright_quasars
 
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
@@ -203,6 +204,7 @@ def import_dso_list():
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
     import_deep_man_600('data/dsolist/DeepMan600.csv')
     import_minimistr_dn('data/dsolist/MiniMistr_DN.csv')
+    import_bright_quasars('data/dsolist/BrightQuasars.csv')
 
 
 @app.cli.command("fix_hnsky_decimal_commas")
@@ -218,6 +220,7 @@ def import_hnsky_supplements():
     import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['Bol', 'SKHB'])
     import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
     import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
+    # Bright quasars supplement is imported together with its DSO list by import_bright_quasars
 
 
 @app.cli.command("import_star_list")
@@ -731,6 +734,14 @@ def tmp_update_comets_cobs_observations():
 def tmp_update_hnsky():
     from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
     import_hnsky('data/deep_sky.hnd')
+
+
+@app.cli.command("tmp_import_bright_quasars")
+def tmp_import_bright_quasars():
+    from imports.import_catalogues import import_catalogues
+    from imports.import_dso_lists import import_bright_quasars
+    import_catalogues('data/astro_catalogues.csv')
+    import_bright_quasars('data/dsolist/BrightQuasars.csv')
 
 
 @app.cli.command("tmp_import_messier_marathon")

@@ -67,6 +67,7 @@ class SessionPlanScheduleFilterForm(FlaskForm):
          ('OC', 'Open Cluster'),
          ('BN', 'Nebula'),
          ('PN', 'Planetary Nebula'),
+         ('QSO', 'Quasar'),
     ], default='')
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
     min_altitude = IntegerField(lazy_gettext('Min altitude'), default=5)
