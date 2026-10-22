@@ -22,6 +22,11 @@ class BuildSceneDsoItemFromModelTestCase(unittest.TestCase):
         self.assertEqual(item['rshort_rad'], -1.0)
         self.assertAlmostEqual(item['position_angle_rad'], math.pi * 0.5)
 
+    def test_quasar_keeps_own_scene_type(self):
+        dso = SimpleNamespace(name='QSO1228+3128', type='QSO', ra=3.21, dec=0.55, mag=15.87,
+                              major_axis=None, minor_axis=None, position_angle=None)
+        self.assertEqual(build_scene_dso_item_from_model(dso)['type'], 'QSO')
+
 
 if __name__ == '__main__':
     unittest.main()
