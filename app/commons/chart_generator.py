@@ -224,7 +224,8 @@ def load_used_catalogs():
                                 # 'Lynds Catalogue of Bright Nebulae.sup',
                                 'M31 global clusters, Revised Bologna Catalogue v5.sup',
                                 'M33 global clusters,  2007 catalog.sup',
-                                'VDB, catalogue of reflection nebulae.sup']
+                                'VDB, catalogue of reflection nebulae.sup',
+                                'Bright quasars, Veron-Cetty & Veron 13th.sup']
                 used_catalogs = fchart3.UsedCatalogs(fchart3_data_dir,
                                                      extra_star_data_dir,
                                                      supplements=[os.path.join(data_dir, 'supplements', s) for s in supplements],

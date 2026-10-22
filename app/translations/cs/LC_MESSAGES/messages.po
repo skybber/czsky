@@ -417,6 +417,10 @@ msgstr "Planetární mlhovina"
 msgid "Galaxy Cluster"
 msgstr "Kupa galaxií"
 
+#: app/main/catalogue/deepskyobject_forms.py
+msgid "Quasar"
+msgstr "Kvasar"
+
 #: app/main/catalogue/deepskyobject_forms.py:55
 #: app/main/catalogue/dso_list_forms.py:26 app/main/chart/chart_forms.py:18
 #: app/main/planner/sessionplan_forms.py:71

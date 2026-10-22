@@ -174,6 +174,7 @@ SIMBAD_TO_CZSKY = {
     'OpC': 'OC',
     'GlC': 'GC',
     'QSO': 'QSO',
+    'BLL': 'QSO',
     'ClG': 'GALCL',
     '**': 'STARS',
     'As*': 'AST',

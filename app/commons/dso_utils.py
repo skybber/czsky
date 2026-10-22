@@ -10,7 +10,7 @@ CATALOG_SPECS0 = {'sh2'}
 # catalog_specs1 = {'Cannon', 'Haro', 'He', 'Hoffleit', 'Hu', 'K', 'Merrill', 'PK', 'Peimbert', 'Perek', 'Vy'}
 CATALOGS_SPEC2 = ['vdb-ha']
 
-CATALOG_NO_UNZERO = ['IRAS']
+CATALOG_NO_UNZERO = ['IRAS', 'QSO']
 
 CATALOGS_SPECIFICATIONS = (
     ('Abell', 3),

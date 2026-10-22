@@ -1,3 +1,4 @@
+import math
 import re
 import urllib.parse
 import unicodedata
@@ -73,6 +74,38 @@ def search_dso(query):
     normalized_name = normalize_dso_name(denormalize_dso_name(query))
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     return dso
+
+
+def search_dso_by_position(ra, dec, dso_type, radius_arcsec=10.0):
+    """
+    Find the nearest DSO of given type within radius_arcsec from ra, dec (radians).
+    """
+    if ra is None or dec is None or not dso_type:
+        return None
+    radius = math.radians(radius_arcsec / 3600.0)
+    ra = ra % (2.0 * math.pi)
+    cos_dec = math.cos(min(abs(dec) + radius, math.pi / 2.0))
+    ra_radius = radius / cos_dec if cos_dec > 1e-9 else math.pi
+
+    query = DeepskyObject.query.filter(DeepskyObject.type == dso_type,
+                                       DeepskyObject.dec >= dec - radius,
+                                       DeepskyObject.dec <= dec + radius)
+    if ra_radius < math.pi:
+        ra_min, ra_max = ra - ra_radius, ra + ra_radius
+        if ra_min < 0.0:  # interval crosses RA 0h
+            query = query.filter(or_(DeepskyObject.ra >= ra_min + 2.0 * math.pi, DeepskyObject.ra <= ra_max))
+        elif ra_max > 2.0 * math.pi:
+            query = query.filter(or_(DeepskyObject.ra >= ra_min, DeepskyObject.ra <= ra_max - 2.0 * math.pi))
+        else:
+            query = query.filter(DeepskyObject.ra >= ra_min, DeepskyObject.ra <= ra_max)
+    candidates = query.all()
+    best_dso, best_sep = None, None
+    for dso in candidates:
+        cos_sep = math.sin(dec) * math.sin(dso.dec) + math.cos(dec) * math.cos(dso.dec) * math.cos(ra - dso.ra)
+        sep = math.acos(max(-1.0, min(1.0, cos_sep)))
+        if sep <= radius and (best_sep is None or sep < best_sep):
+            best_dso, best_sep = dso, sep
+    return best_dso
 
 
 def search_star(query):

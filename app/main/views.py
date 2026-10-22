@@ -42,6 +42,7 @@ from app.commons.solar_system_chart_utils import get_solsys_bodies
 from app.commons.search_sky_object_utils import (
     search_constellation,
     search_dso,
+    search_dso_by_position,
     search_star,
     search_comet,
     search_double_star,
@@ -378,7 +379,8 @@ def _find_dso_by_simbad_obj(simbad_obj):
         dso = search_dso(name)
         if dso is not None:
             return dso
-    return None
+    # objects without catalogue name in czsky (e.g. quasars stored as QSOhhmm+ddmm)
+    return search_dso_by_position(simbad_obj['ra'], simbad_obj['dec'], get_otype_from_simbad(simbad_obj))
 
 
 def _redirect_to_chart_radec(ra, dec):
