@@ -13,16 +13,13 @@ def import_catalogues(data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             for row in reader:
-                c = Catalogue.query.filter_by(code=row['code'], name=row['name']).first()
+                # id is stable, code, name and description may change
+                c = Catalogue.query.filter_by(id=int(row['id'])).first()
                 if c is None:
-                    c = Catalogue(
-                        id = row['id'],
-                        code = row['code'],
-                        name = row['name'],
-                        descr = row['description'],
-                    )
-                else:
-                    c.descr = row['description']
+                    c = Catalogue(id=int(row['id']))
+                c.code = row['code']
+                c.name = row['name']
+                c.descr = row['description']
                 db.session.add(c)
             db.session.commit()
         except IntegrityError as err:

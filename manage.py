@@ -220,7 +220,7 @@ def import_hnsky_supplements():
     import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['Bol', 'SKHB'])
     import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
     import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
-    # Bright quasars supplement is imported together with its DSO list by import_bright_quasars
+    # Quasars supplement is imported together with its data and DSO list by import_bright_quasars
 
 
 @app.cli.command("import_star_list")
@@ -736,8 +736,8 @@ def tmp_update_hnsky():
     import_hnsky('data/deep_sky.hnd')
 
 
-@app.cli.command("tmp_import_bright_quasars")
-def tmp_import_bright_quasars():
+@app.cli.command("tmp_import_quasars")
+def tmp_import_quasars():
     from imports.import_catalogues import import_catalogues
     from imports.import_dso_lists import import_bright_quasars
     import_catalogues('data/astro_catalogues.csv')
