@@ -359,6 +359,19 @@ class UpdateNeosTestCase(NeoDbTestCase):
             update_neos()
         self.assertEqual(NeoCloseApproach.query.count(), 0)
 
+    def test_queries_and_refreshes_the_last_30_days_too(self):
+        now = self.window_start
+        departed = self._approach('2026 UK', days=-10, h=24.8)  # closest approach 10 days ago
+        with patch.object(neo_utils, 'fetch_close_approaches', return_value=[departed]) as fetch:
+            update_neos()
+        fetch.assert_called_once_with(now - timedelta(days=30), days=120)
+        stored = NeoCloseApproach.query.filter_by(designation='2026 UK').one()
+        self.assertEqual(stored.approach_time, now - timedelta(days=10))
+        # Coverage and import time from the real now, not from the window start.
+        fetch_ephemeris_now = neo_utils.fetch_neo_ephemeris.call_args.args[2]
+        self.assertEqual(fetch_ephemeris_now, now)
+        self.assertEqual(stored.minor_planet.neo_imported_at, now)
+
     def test_always_forces_nea_download(self):
         with patch.object(neo_utils, 'fetch_close_approaches', return_value=[]):
             update_neos()

@@ -274,7 +274,7 @@ def _stored_ephemeris(mpc_row):
 
 
 def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag_limit=NEO_PEAK_MAG_LIMIT,
-                           fetch_ephemeris=None):
+                           fetch_ephemeris=None, now=None):
     """
     Replaces stored approaches in [window_start, window_start + days) with the given ones whose
     peak brightness passes mag_limit, importing their asteroids and their Horizons ephemerides.
@@ -282,9 +282,11 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
     ephemerides are downloaded for them, the peak is recomputed with Horizons and only then
     filtered; the database is written in one transaction at the end. If Horizons fails for an
     asteroid, its previously stored ephemeris (if any) is kept and used.
-    Approaches before window_start stay as history.
+    Approaches before window_start stay as history. now (default window_start) is the current
+    time for the Horizons coverage and the import time; the window may start before it.
     """
     fetch_ephemeris = fetch_ephemeris or fetch_neo_ephemeris
+    now = now or window_start
     window_end = window_start + timedelta(days=days)
     mpc_minor_planets = get_all_mpc_minor_planets()
     index = build_designation_index(mpc_minor_planets)
@@ -335,7 +337,7 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
         items = [c for c in candidates if c['packed'] == packed]
         try:
             fetched[packed] = fetch_ephemeris(items[0]['mpc_row'], [c['approach']['approach_time'] for c in items],
-                                              window_start)
+                                              now)
             segments_for_peak[packed] = fetched[packed]
         except Exception:
             current_app.logger.exception('Horizons ephemeris of {} failed; keeping the stored one.'.format(
@@ -363,7 +365,7 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
             if c['packed'] is not None:
                 minor_planet = minor_planets.get(c['packed'])
                 if minor_planet is None:
-                    minor_planet = minor_planets[c['packed']] = _get_or_create_minor_planet(c['mpc_row'], window_start)
+                    minor_planet = minor_planets[c['packed']] = _get_or_create_minor_planet(c['mpc_row'], now)
             else:
                 unmatched.append(c['approach']['designation'])
             new_rows.append(NeoCloseApproach(minor_planet=minor_planet, est_peak_mag=c['est_peak_mag'],
@@ -371,7 +373,7 @@ def store_close_approaches(approaches, window_start, days=NEO_APPROACH_DAYS, mag
         db.session.flush()
         for packed, minor_planet in minor_planets.items():
             if fetched.get(packed):
-                replace_neo_ephemeris(minor_planet.id, fetched[packed], window_start)
+                replace_neo_ephemeris(minor_planet.id, fetched[packed], now)
 
         NeoCloseApproach.query.filter(
             NeoCloseApproach.approach_time >= window_start,
@@ -443,13 +445,17 @@ def update_neos(force=False):
     # Always download: with a 24 h freshness check a run starting a few seconds earlier
     # than yesterday's would skip the download. The file is in place before the DB writes.
     ensure_nea_file(force_reload=True)
-    window_start = _utcnow()
+    now = _utcnow()
+    # Also the last NEO_APPROACH_HISTORY days: departing asteroids stay listed for that long, so
+    # their approaches (also those before the first run) and Horizons ephemerides are refreshed too.
+    window_start = now - NEO_APPROACH_HISTORY
+    days = NEO_APPROACH_HISTORY.days + NEO_APPROACH_DAYS
     try:
-        approaches = fetch_close_approaches(window_start)
+        approaches = fetch_close_approaches(window_start, days=days)
     except CloseApproachSourceError:
         current_app.logger.exception('Fetching NEA close approaches failed; keeping stored data.')
     else:
-        store_close_approaches(approaches, window_start)
+        store_close_approaches(approaches, window_start, days=days, now=now)
     update_neo_positions(update_elements=True)
-    cleanup_neo_data(window_start)
+    cleanup_neo_data(now)
     return True
