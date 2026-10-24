@@ -431,8 +431,9 @@ def update_minor_planets_elements_from_mpc(show_progress=False):
     current_app.logger.info('Minor planets elements updated from MPC.')
 
 
-# NEAs whose approach passed less than this long ago are still recomputed hourly.
-NEO_POSITIONS_APPROACH_PAST = timedelta(days=1)
+# NEAs whose approach passed less than this long ago are still recomputed hourly: departing
+# asteroids stay listed for up to 30 days (neo_views.NEO_DEPARTING_PAST).
+NEO_POSITIONS_APPROACH_PAST = timedelta(days=30)
 
 
 def update_neo_positions(update_elements=False):

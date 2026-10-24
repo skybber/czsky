@@ -385,7 +385,7 @@ class UpdateNeoPositionsTestCase(NeoDbTestCase):
             NeoCloseApproach(designation='433', minor_planet=eros, approach_time=datetime.utcnow() + timedelta(days=5),
                              dist_au=0.2),
             NeoCloseApproach(designation='1862', minor_planet=apollo,
-                             approach_time=datetime.utcnow() - timedelta(days=3), dist_au=0.2),  # passed
+                             approach_time=datetime.utcnow() - timedelta(days=40), dist_au=0.2),  # long passed
         ])
         db.session.commit()
 
@@ -505,6 +505,61 @@ class MinorPlanetDetailNeoTestCase(NeoDbTestCase):
         self.assertIn('Apollo', html)
         self.assertIn('{:.1f} LD'.format(0.005 * 149597870.7 / 384400.0), html)
         self.assertIn('exclamation triangle', html)  # very close approach warning
+
+
+class DepartingNeaTestCase(NeoDbTestCase):
+    def _departing(self, designation, days_ago, eval_mag, peak_in_days):
+        now = datetime.utcnow()
+        planet = MinorPlanet(mpc_designation=designation, designation=designation, is_neo=True, eval_mag=eval_mag)
+        db.session.add(planet)
+        db.session.add(NeoCloseApproach(designation=designation, minor_planet=planet,
+                                        approach_time=now - timedelta(days=days_ago), dist_au=0.05,
+                                        peak_mag=14.0, peak_time=now + timedelta(days=peak_in_days)))
+        return planet
+
+    def _listed(self, query=''):
+        html = self.app.test_client().get('/near-earth-asteroids?period=30' + query).get_data(as_text=True)
+        tbody = html[html.index('<tbody>'):]
+        return sorted(name for name in ('BRIGHT', 'FAINT', 'PEAKAHEAD', 'TOOOLD') if '>' + name + '<' in tbody)
+
+    def test_departing_asteroids_stay_listed_while_worth_observing(self):
+        self._departing('BRIGHT', 10, eval_mag=15.0, peak_in_days=-9)   # brighter than 16 now
+        self._departing('FAINT', 10, eval_mag=17.5, peak_in_days=-9)    # faded, peak passed
+        self._departing('PEAKAHEAD', 10, eval_mag=17.5, peak_in_days=2)  # brightest still ahead
+        self._departing('TOOOLD', 40, eval_mag=15.0, peak_in_days=-39)  # beyond 30 days
+        db.session.commit()
+
+        self.assertEqual(self._listed(), ['BRIGHT', 'PEAKAHEAD'])
+        self.assertEqual(self._listed('&maglim=18'), ['BRIGHT', 'FAINT', 'PEAKAHEAD'])
+        self.assertEqual(self._listed('&maglim='), ['BRIGHT', 'FAINT', 'PEAKAHEAD'])  # no limit: all of 30 days
+
+    def test_departing_rows_are_greyed_and_explained(self):
+        self._departing('BRIGHT', 10, eval_mag=15.0, peak_in_days=-9)
+        db.session.commit()
+        html = self.app.test_client().get('/near-earth-asteroids').get_data(as_text=True)
+        row = html[html.rindex('<tr', 0, html.index('>BRIGHT<')):html.index('>BRIGHT<')]
+        self.assertIn('opacity: 0.6', row)
+        self.assertIn('title=', row)
+
+    def test_hourly_recompute_includes_departing_asteroids(self):
+        now = datetime.utcnow()
+        eros = MinorPlanet(int_designation=433, mpc_designation='00433', magnitude_H=10.39, magnitude_G=0.15,
+                           is_neo=True)
+        apollo = MinorPlanet(int_designation=1862, mpc_designation='01862', magnitude_H=16.09, magnitude_G=0.09,
+                             is_neo=True)
+        db.session.add_all([
+            eros, apollo,
+            NeoCloseApproach(designation='433', minor_planet=eros, approach_time=now - timedelta(days=10), dist_au=0.2),
+            NeoCloseApproach(designation='1862', minor_planet=apollo, approach_time=now - timedelta(days=40),
+                             dist_au=0.2),
+        ])
+        db.session.commit()
+
+        with patch.object(minor_planet_utils, 'load_constellation_map', return_value=lambda position: None):
+            minor_planet_utils.update_neo_positions()
+
+        self.assertIsNotNone(MinorPlanet.query.filter_by(mpc_designation='00433').one().cur_ra)  # departing
+        self.assertIsNone(MinorPlanet.query.filter_by(mpc_designation='01862').one().cur_ra)  # beyond 30 days
 
 
 class NearEarthAsteroidsViewTestCase(NeoDbTestCase):

@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from flask import Blueprint, current_app, render_template, request
-from sqlalchemy import func, nullslast
+from sqlalchemy import and_, func, nullslast, or_, true
 
 from app import create_app, scheduler
 from app.models import (
@@ -22,8 +22,12 @@ from .neo_forms import SearchNeoForm
 
 main_neo = Blueprint('main_neo', __name__)
 
-# Approaches that passed less than this long ago are still listed.
+# Approaches that passed less than this long ago are always listed.
 NEO_RECENT_PAST = timedelta(days=1)
+# Departing asteroids (closest approach up to this long ago, as long as approaches are kept,
+# see neo_utils.NEO_APPROACH_HISTORY) stay listed while still worth observing: brighter than the
+# limit now, or with the brightest moment still ahead (often after the approach: smaller phase).
+NEO_DEPARTING_PAST = timedelta(days=30)
 
 # Computed peak brightness; the rough estimate only for asteroids without an orbit.
 NEO_PEAK_MAG = func.coalesce(NeoCloseApproach.peak_mag, NeoCloseApproach.est_peak_mag)
@@ -87,11 +91,18 @@ def near_earth_asteroids():
 
     days = int(form.period.data)
     now = datetime.utcnow()
+    still_observable = [NeoCloseApproach.approach_time >= now - NEO_RECENT_PAST,
+                        NeoCloseApproach.peak_time >= now]
+    if form.maglim.data is None:
+        still_observable.append(true())  # no limit: every departing asteroid of the last 30 days
+    else:
+        still_observable.append(and_(MinorPlanet.eval_mag.isnot(None), MinorPlanet.eval_mag <= form.maglim.data))
     query = NeoCloseApproach.query \
         .outerjoin(MinorPlanet, NeoCloseApproach.minor_planet_id == MinorPlanet.id) \
         .filter(
-        NeoCloseApproach.approach_time >= now - NEO_RECENT_PAST,
+        NeoCloseApproach.approach_time >= now - NEO_DEPARTING_PAST,
         NeoCloseApproach.approach_time < now + timedelta(days=days),
+        or_(*still_observable),
     )
     if form.dist_max_ld.data != 'all':
         query = query.filter(NeoCloseApproach.dist_au <= float(form.dist_max_ld.data) * LUNAR_DISTANCE_KM / AU_KM)
