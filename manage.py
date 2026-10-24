@@ -214,6 +214,16 @@ def fix_hnsky_decimal_commas(apply):
     fix_hnsky_decimal_comma_dsos('data/deep_sky.hnd', dry_run=not apply)
 
 
+@app.cli.command("fix_stale_hnsky_masters")
+@click.option('--apply', is_flag=True, help='Commit changes, otherwise dry run only.')
+def fix_stale_hnsky_masters(apply):
+    """
+    Clear master links of HNSKY DSOs that are no longer synonyms in data/deep_sky.hnd.
+    """
+    from imports.import_hnsky import fix_stale_hnsky_masters as _fix_stale_hnsky_masters
+    _fix_stale_hnsky_masters('data/deep_sky.hnd', dry_run=not apply)
+
+
 @app.cli.command("import_hnsky_supplements")
 def import_hnsky_supplements():
     from imports.import_hnsky_supplement import import_hnsky_supplement

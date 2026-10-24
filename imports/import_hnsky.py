@@ -453,6 +453,98 @@ def _set_hnsky_dims(dso, major, minor, position_angle, brightness):
     dso.axis_ratio = axis_ratio
 
 
+def _derived_hnsky_master_name(name):
+    """Name created by import_hnsky as fake master (NGC123A -> NGC123, NGC123_1 -> NGC123)."""
+    if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
+        if name.endswith('A'):
+            return name[:-1]
+        if name.endswith('-1') or name.endswith('_1'):
+            return name[:-2]
+    return None
+
+
+def read_hnsky_name_groups(lines):
+    """
+    Return map dso name -> set of line indexes in deep_sky.hnd. Names on the same line are synonyms.
+    """
+    name_groups = {}
+    for line_index, line in enumerate(lines):
+        if len(line.strip()) == 0:
+            continue
+        items = fix_hnsky_decimal_commas(line.split(','))
+        if len(items) < 4:
+            continue
+        for name1 in items[3].split('/'):
+            for raw_name in name1.split(';'):
+                name = _normalize_hnsky_name(raw_name)
+                if not name:
+                    continue
+                name_groups.setdefault(name, set()).add(line_index)
+                derived_name = _derived_hnsky_master_name(raw_name.strip())
+                if derived_name:
+                    name_groups.setdefault(derived_name, set()).add(line_index)
+    return name_groups
+
+
+def is_stale_hnsky_master_link(child_name, master_name, name_groups):
+    """
+    Returns True if child -> master link is not supported by current deep_sky.hnd,
+    None if it can't be decided (child or master is missing in the file), False otherwise.
+    """
+    # links created by fix_masters_after_hnsky_import (NGC123_2 -> NGC123)
+    if child_name.startswith(master_name + '_'):
+        return False
+    child_group = name_groups.get(child_name)
+    master_group = name_groups.get(master_name)
+    if child_group is None or master_group is None:
+        return None
+    return child_group.isdisjoint(master_group)
+
+
+def fix_stale_hnsky_masters(hnsky_dso_file, dry_run=True):
+    """
+    Clear master_id of HNSKY DSOs linked to a master that is no longer on the same line of deep_sky.hnd.
+    Such links remain from older deep_sky.hnd versions, since import_hnsky never resets master_id
+    (e.g. old line 'B8/LDN1392/B9' made B9 a child of B8).
+    """
+    with open(hnsky_dso_file, 'r', encoding='ISO-8859-1') as hnd_file:
+        lines = hnd_file.readlines()[2:]
+
+    name_groups = read_hnsky_name_groups(lines)
+
+    fixed_cnt = 0
+    undecided_cnt = 0
+    try:
+        children = DeepskyObject.query.filter(DeepskyObject.master_id.isnot(None),
+                                              DeepskyObject.import_source == IMPORT_SOURCE_HNSKY) \
+            .order_by(DeepskyObject.name).all()
+        for child in children:
+            master = child.master_dso
+            if master is None or master.import_source != IMPORT_SOURCE_HNSKY:
+                continue
+            stale = is_stale_hnsky_master_link(child.name, master.name, name_groups)
+            if stale is None:
+                missing = [n for n in (child.name, master.name) if n not in name_groups]
+                print('Skipping {} -> {}: not in {}: {}'.format(child.name, master.name, hnsky_dso_file,
+                                                                ', '.join(missing)))
+                undecided_cnt += 1
+            elif stale:
+                print('Clearing master {} -> {}'.format(child.name, master.name))
+                child.master_id = None
+                db.session.add(child)
+                fixed_cnt += 1
+
+        if dry_run:
+            print('Dry run: {} master links would be cleared, {} skipped.'.format(fixed_cnt, undecided_cnt))
+            db.session.rollback()
+        else:
+            db.session.commit()
+            print('{} master links cleared, {} skipped.'.format(fixed_cnt, undecided_cnt))
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()
+
+
 def fix_hnsky_decimal_comma_dsos(hnsky_dso_file, dry_run=True):
     """
     Fix DSOs imported from deep_sky.hnd lines containing decimal commas (see fix_hnsky_decimal_commas).
