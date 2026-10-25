@@ -125,7 +125,7 @@ def import_hnsky_supplement(hnsky_supplement_file, allowed_cat_prefixes=None):
             str_mag = items[6].strip()
 
             if str_mag:
-                mag = float(str_mag) / 10.0
+                mag = round(float(str_mag) / 10.0, 2)
             else:
                 mag = 100
 
@@ -133,7 +133,7 @@ def import_hnsky_supplement(hnsky_supplement_file, allowed_cat_prefixes=None):
             if len(items) > 5:
                 str_brightness = items[9].strip()
                 try:
-                    brightness = float(str_brightness) / 10.0 if str_brightness else 100.0
+                    brightness = round(float(str_brightness) / 10.0, 3) if str_brightness else 100.0
                 except (ValueError, TypeError):
                     pass
 

@@ -1,4 +1,4 @@
-{% macro convert_mag(mag) %}{{ mag if mag and mag < 100.0 else '- ' }}{% endmacro %}
+{% macro convert_mag(mag) %}{{ mag | round(2) if mag and mag < 100.0 else '- ' }}{% endmacro %}
 
 {% macro norm_aperture_class(ap_class) %}{{ 'Naked-eye' if ap_class=='Naked-eye' else ap_class + 'mm' }}{% endmacro %}
 

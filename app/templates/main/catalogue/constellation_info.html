@@ -62,7 +62,7 @@
             </tr>
         {% endif %}
         {% if dso.position_angle %}<tr><td>position_angle</td><td>{{ dso.position_angle }}</td></tr>{% endif %}
-        {% if dso.mag and dso.mag < 100.0 %}<tr><td>mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
+        {% if dso.mag and dso.mag < 100.0 %}<tr><td>mag</td><td>{{ commons.convert_mag(dso.mag) }}</td></tr>{% endif %}
         {% if dso.surface_bright and dso.surface_bright < 100.0 %}<tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
         {% if dso.type == 'PN' %}
             {# {% if dso.c_star_u_mag %}<tr><td>c_star_u_mag</td><td>{{ dso.c_star_u_mag }}</td></tr>{% endif %} #}
@@ -334,7 +334,7 @@
                 <div id="dso{{ aster_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
                     <div id="dso-toolbar" style="float:right;">
                         <div class="ui label" style="float:left;">
-                            {{ aster_dso_descr.deepsky_object.mag if aster_dso_descr.deepsky_object.mag else '' }}mag
+                            {{ aster_dso_descr.deepsky_object.mag | round(2) if aster_dso_descr.deepsky_object.mag else '' }}mag
                         </div>
                         {% if aster_dso_descr.deepsky_object.major_axis %}
                             <div class="ui label" style="float:left;">

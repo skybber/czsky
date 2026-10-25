@@ -151,7 +151,7 @@ def import_hnsky(hnsky_dso_file):
             constellation_id = constell_dict[const_code.upper()] if const_code else None
 
             str_mag = items[2].strip()
-            mag = float(str_mag)/10.0 if str_mag else 100.0
+            mag = round(float(str_mag)/10.0, 2) if str_mag else 100.0
 
             brightness = None
             if len(items) > 5:

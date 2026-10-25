@@ -254,11 +254,14 @@ class RedshiftTestCase(unittest.TestCase):
         self.assertIsNone(galaxy.redshift)
 
     def test_redshift_shown_in_dso_info(self):
-        dso = DeepskyObject(name='QSO1228+3128', type='QSO', ra=3.21, dec=0.55, mag=15.87, common_name='Ton 618',
+        dso = DeepskyObject(name='QSO1228+3128', type='QSO', ra=3.21, dec=0.55, mag=15.430000000000001, common_name='Ton 618',
                             distance=1.0844e10, redshift=2.219, constellation_id=self.constellation.id,
                             catalogue_id=61)
         db.session.add(dso)
         db.session.commit()
         response = self.app.test_client().get('/deepskyobject/QSO1228+3128/catalogue_data')
         self.assertEqual(200, response.status_code)
-        self.assertIn('z = 2.219', response.get_data(as_text=True))
+        body = response.get_data(as_text=True)
+        self.assertIn('z = 2.219', body)
+        self.assertIn('15.43', body)
+        self.assertNotIn('15.430000000000001', body)
