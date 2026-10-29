@@ -1803,7 +1803,8 @@
       colored: {
         id: "DSS2-color",
         name: "DSS2 (Color)",
-        url: "P/DSS2/color"
+        // Direct ESA mirror: keep DSS Color usable during CDS/MocServer outages.
+        url: "https://skies.esac.esa.int/DSSColor"
       }
     };
     const IS_NIGHT_THEME = {{ 'true' if chart_control.theme == 'night' else 'false' }};
@@ -1940,6 +1941,7 @@
         const dssLayerData = initialAladinLayer;
         A.init.then(() => {
             aladin = A.aladin('#fchart-aladin-div', {
+                survey: SURVEY_OPTIONS.colored.url,
                 fov:60,
                 target: "0 0 0 0 0 0",
                 projection: "STG",
