@@ -1,7 +1,7 @@
 import unittest
 
 from app import create_app, db
-from app.commons.search_sky_object_utils import search_dso, search_dso_by_common_name
+from app.commons.search_sky_object_utils import search_dso, search_dso_by_common_name, search_dsos
 from app.models import DeepskyObject
 
 
@@ -46,6 +46,19 @@ class SearchDsoTestCase(unittest.TestCase):
         master = self._add('PGC41121', '3C 273')
         self._add('QSO1229+0203', '3C 273', master=master)
         self.assertEqual(search_dso_by_common_name('3C 273').name, 'PGC41121')
+
+    def test_batch_search_matches_single_search(self):
+        master = self._add('PGC41121', '3C 273')
+        self._add('QSO1229+0203', '3C 273', master=master)
+        self._add('QSO1228+3128', 'Ton 618')
+        self._add('NGC7000', 'North America Nebula')
+        self._add('QSO0000+0000', 'NGC 7000')
+        queries = ['NGC 7000', '7000', 'ton618', 'PKS%202155-304', '3C 273', 'QSO 1228+3128', 'xx', 'unknown']
+        batch = search_dsos(queries)
+        self.assertEqual(set(queries), set(batch.keys()))
+        for query in queries:
+            single = search_dso(query)
+            self.assertEqual(single.name if single else None, batch[query].name if batch[query] else None, query)
 
     def test_does_not_match_short_or_numeric_queries(self):
         self._add('QSO0000+0000', '31')

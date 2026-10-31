@@ -62,7 +62,10 @@ def search_constellation(query):
 MIN_COMMON_NAME_QUERY_LENGTH = 3
 
 
-def search_dso(query):
+def _prepare_dso_query(query):
+    """
+    Returns (normalized catalogue name, common name key or None). Common name key is None for queries that can't be a common name.
+    """
     is_name_query = False
     if (query.endswith('_1') or query.endswith('_2')) and query[:-2].isdigit():
         query = 'NGC' + query
@@ -77,10 +80,55 @@ def search_dso(query):
         is_name_query = True
 
     normalized_name = normalize_dso_name(denormalize_dso_name(query))
+    return normalized_name, _common_name_key(query) if is_name_query else None
+
+
+def _common_name_key(query):
+    key = (query or '').replace(' ', '').lower()
+    return key if len(key) >= MIN_COMMON_NAME_QUERY_LENGTH else None
+
+
+def _common_name_column():
+    return func.lower(func.replace(DeepskyObject.common_name, ' ', ''))
+
+
+def search_dso(query):
+    normalized_name, common_name_key = _prepare_dso_query(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-    if dso is None and is_name_query:
-        dso = search_dso_by_common_name(query)
+    if dso is None and common_name_key:
+        dso = _search_dso_by_common_name_key(common_name_key)
     return dso
+
+
+def search_dsos(queries):
+    """
+    Batch variant of search_dso(). Returns dict query -> DeepskyObject or None using a constant number of SQL queries.
+    """
+    prepared = {query: _prepare_dso_query(query) for query in set(queries)}
+
+    names = {normalized_name for normalized_name, _ in prepared.values()}
+    by_name = {}
+    if names:
+        for dso in DeepskyObject.query.filter(DeepskyObject.name.in_(names)).order_by(DeepskyObject.id):
+            by_name.setdefault(dso.name, dso)
+
+    common_name_keys = {key for normalized_name, key in prepared.values() if key and normalized_name not in by_name}
+    by_common_name = {}
+    if common_name_keys:
+        # same ordering as search_dso_by_common_name(): master objects first
+        rows = DeepskyObject.query.add_columns(_common_name_column()) \
+            .filter(_common_name_column().in_(common_name_keys)) \
+            .order_by(DeepskyObject.master_id.isnot(None), DeepskyObject.id).all()
+        for dso, key in rows:
+            by_common_name.setdefault(key, dso)
+
+    result = {}
+    for query, (normalized_name, key) in prepared.items():
+        dso = by_name.get(normalized_name)
+        if dso is None and key:
+            dso = by_common_name.get(key)
+        result[query] = dso
+    return result
 
 
 def search_dso_by_common_name(query):
@@ -88,10 +136,12 @@ def search_dso_by_common_name(query):
     Find DSO by common name ignoring case and spaces, e.g. 'ton618' finds QSO1228+3128 (Ton 618).
     Master objects are preferred.
     """
-    key = (query or '').replace(' ', '').lower()
-    if len(key) < MIN_COMMON_NAME_QUERY_LENGTH:
-        return None
-    return DeepskyObject.query.filter(func.lower(func.replace(DeepskyObject.common_name, ' ', '')) == key) \
+    key = _common_name_key(query)
+    return _search_dso_by_common_name_key(key) if key else None
+
+
+def _search_dso_by_common_name_key(key):
+    return DeepskyObject.query.filter(_common_name_column() == key) \
         .order_by(DeepskyObject.master_id.isnot(None), DeepskyObject.id).first()
 
 

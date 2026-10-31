@@ -205,6 +205,9 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_system)
         from .main.oauth import main_oauth as main_oauth
         app.register_blueprint(main_oauth)
+        from .main.api import main_api as main_api
+        csrf.exempt(main_api)
+        app.register_blueprint(main_api)
 
         from .account import account as account_blueprint
         app.register_blueprint(account_blueprint, url_prefix='/account')

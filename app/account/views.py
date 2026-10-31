@@ -304,6 +304,9 @@ def join_from_invite(user_id, token):
 @account.before_app_request
 def before_request():
     """Force user to confirm email before accessing login-required routes."""
+    # Token authenticated API doesn't use the session user at all
+    if request.blueprint == 'main_api':
+        return None
     try:
         if current_user.is_authenticated \
                 and not current_user.confirmed \
