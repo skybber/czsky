@@ -255,14 +255,41 @@
         <p>Available scopes: <code>wishlist:read</code>, <code>wishlist:write</code>, <code>dso:read</code>, <code>sessionplan:read</code>, <code>sessionplan:write</code>, <code>observingsession:read</code>, <code>observingsession:write</code>, <code>observationlog:read</code>, <code>observationlog:write</code>, <code>observed:read</code>, <code>location:read</code>, <code>equipment:read</code>.</p>
 
         {% if new_token_value %}
-            <div class="ui positive message">
-                <div class="header">Copy this token now</div>
-                <p>This value is shown only once.</p>
+            <div class="ui positive icon message">
+                <i class="key icon"></i>
+                <div class="content">
+                    <div class="header">{{ _('Copy this token now') }}</div>
+                    <p>{{ _('This value is shown only once.') }}</p>
+                    <div class="ui form">
+                        <div class="field">
+                            <div class="ui fluid action input">
+                                <input id="new_token_value" type="text" readonly value="{{ new_token_value }}"
+                                       style="font-family: monospace;" autocomplete="off" spellcheck="false">
+                                <button type="button" id="bcopy_token" class="ui icon button" data-inverted="" data-tooltip="{{ _('Copy to clipboard') }}">
+                                    <i class="copy icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="field">
-                <label>New token value</label>
-                <textarea rows="3" readonly>{{ new_token_value }}</textarea>
-            </div>
+            <script type="text/javascript">
+                $('#new_token_value').on('focus click', function() { this.select(); });
+                $('#bcopy_token').click(function() {
+                    const input = document.getElementById('new_token_value');
+                    input.select();
+                    const done = function() {
+                        $('body').toast({ message: {{ _('Token copied to clipboard')|tojson }}, class: 'success', displayTime: 2000 });
+                    };
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(input.value).then(done, function() {
+                            if (document.execCommand('copy')) done();
+                        });
+                    } else if (document.execCommand('copy')) {
+                        done();
+                    }
+                });
+            </script>
         {% endif %}
 
         {{ f.begin_form(create_form, flashes, action=url_for('main_usersettings.mcp_token')) }}
