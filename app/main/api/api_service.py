@@ -3,11 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Iterable
 
+from flask import url_for
 from sqlalchemy import text
 
 from app import db
+from app.commons.dso_description_utils import get_dso_descriptions_with_master_fallback
+from app.commons.md_utils import parse_extended_commonmark
 from app.commons.search_sky_object_utils import search_dsos
 from app.models import (
+    Constellation,
     DeepskyObject,
     ObservedList,
     ObservedListItem,
@@ -158,3 +162,87 @@ def wishlist_add_payload(user_id: int, name: Any) -> dict[str, Any] | None:
         db.session.rollback()
         raise
     return {'result': result, 'dsoId': dso.id, 'name': dso.name}
+
+
+def _format_axis(arcsec: float) -> str:
+    # same format as the convert_dso_size macro in common_macros.html
+    if arcsec >= 600.0:
+        return "{}'".format(int(arcsec / 60.0))
+    if arcsec >= 100.0:
+        return "{}'".format(int(arcsec / 6.0) / 10.0)
+    return "{}''".format(int(arcsec))
+
+
+def _format_size(dso: DeepskyObject) -> str | None:
+    if not dso.major_axis:
+        return None
+    size = _format_axis(dso.major_axis)
+    if dso.minor_axis:
+        size += ' / ' + _format_axis(dso.minor_axis)
+    return size
+
+
+def _aperture_label(aperture_class: str) -> str:
+    # same as the norm_aperture_class macro in common_macros.html
+    return aperture_class if aperture_class == 'Naked-eye' else aperture_class + 'mm'
+
+
+def _render_md(md_text: str | None, dso_name: str) -> str | None:
+    if not md_text or not md_text.strip():
+        return None
+    return str(parse_extended_commonmark(md_text, dso_name, ''))
+
+
+def dso_detail_payload(user_id: int, name: Any, include_observed: bool, include_wishlist: bool) -> dict[str, Any] | None:
+    """
+    Detail of a DSO for the browser extension panel. Description HTML is rendered the same way as on the DSO info page;
+    it contains site-relative links and is NOT sanitized, the client must sanitize it before inserting it into a page.
+    Must be called within a request context (descriptions depend on the request language). Returns None if not found.
+    """
+    clean_name = _clean_name(name)
+    if clean_name is None:
+        raise ValueError('name must be a non-empty string')
+
+    dso = resolve_dso(clean_name)
+    if dso is None:
+        return None
+
+    user_descr, apert_descriptions, title_img = get_dso_descriptions_with_master_fallback(dso)
+
+    descr_md = ''
+    if title_img:
+        descr_md += '![<]({})\n'.format(title_img)
+    if user_descr and user_descr.text:
+        descr_md += user_descr.text
+
+    group = _dso_groups([dso.id])[dso.id]
+    other_names = [row[0] for row in db.session.query(DeepskyObject.name)
+                   .filter(DeepskyObject.master_id == dso.id).order_by(DeepskyObject.name)]
+    constellation = Constellation.get_constellation_by_id(dso.constellation_id) if dso.constellation_id else None
+
+    return {
+        'dsoId': dso.id,
+        'name': dso.name,
+        'denormalizedName': dso.denormalized_name(),
+        'commonName': (user_descr.common_name if user_descr and user_descr.common_name else None) or dso.common_name,
+        'otherNames': other_names,
+        'type': dso.type,
+        'subtype': dso.subtype,
+        'constellation': {'iauCode': constellation.iau_code, 'name': constellation.name.capitalize()} if constellation else None,
+        'mag': dso.mag if dso.mag is not None and dso.mag < 100.0 else None,
+        'size': _format_size(dso),
+        'ra': dso.ra_str(),
+        'dec': dso.dec_str(),
+        'descriptionHtml': _render_md(descr_md, dso.name),
+        'apertureDescriptions': [
+            {'aperture': _aperture_label(ap_class), 'html': _render_md(text, dso.name)}
+            for ap_class, text in apert_descriptions if text
+        ],
+        'referencesHtml': _render_md(user_descr.references if user_descr else None, dso.name),
+        'observed': bool(_observed_dso_ids(user_id, group)) if include_observed else None,
+        'wishlist': bool(_wishlist_dso_ids(user_id, group)) if include_wishlist else None,
+        'urls': {
+            'info': url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, _external=True),
+            'chart': url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, _external=True),
+        },
+    }

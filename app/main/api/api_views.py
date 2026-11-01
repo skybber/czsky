@@ -4,7 +4,7 @@ from flask import Blueprint, g, jsonify, request
 
 from app.main.usersettings.mcp_token_service import verify_user_mcp_token
 
-from .api_service import dso_status_payload, wishlist_add_payload
+from .api_service import dso_detail_payload, dso_status_payload, wishlist_add_payload
 
 main_api = Blueprint('main_api', __name__, url_prefix='/api/v1')
 
@@ -68,6 +68,23 @@ def dso_status():
         )
     except ValueError as e:
         return _error(str(e), 400)
+    return jsonify(payload)
+
+
+@main_api.route('/dso/detail', methods=['GET'])
+@token_required('dso:read', 'observed:read', 'wishlist:read')
+def dso_detail():
+    try:
+        payload = dso_detail_payload(
+            g.api_user_id,
+            request.args.get('name'),
+            include_observed='observed:read' in g.api_scopes,
+            include_wishlist='wishlist:read' in g.api_scopes,
+        )
+    except ValueError as e:
+        return _error(str(e), 400)
+    if payload is None:
+        return _error('object not found', 404)
     return jsonify(payload)
 
 

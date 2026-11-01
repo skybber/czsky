@@ -215,6 +215,48 @@ class ApiViewsTestCase(unittest.TestCase):
         finally:
             self.app.login_manager.session_protection = 'strong'
 
+    def _detail(self, name, headers):
+        return self.client.get('/api/v1/dso/detail', query_string={'name': name}, headers=headers)
+
+    def test_detail_returns_object_data(self):
+        self._observe(self.user, self.ngc224)
+        response = self._detail('NGC224', self._token('observed:read'))
+        self.assertEqual(200, response.status_code)
+        data = response.get_json()
+        self.assertEqual(2, data['dsoId'])
+        self.assertEqual('M31', data['name'])
+        self.assertEqual(['NGC224'], data['otherNames'])
+        self.assertEqual('GX', data['type'])
+        self.assertEqual(10.0, data['mag'])
+        self.assertTrue(data['observed'])
+        self.assertIsNone(data['wishlist'])
+        self.assertIsNone(data['descriptionHtml'])
+        self.assertEqual([], data['apertureDescriptions'])
+        self.assertTrue(data['urls']['info'].endswith('/deepskyobject/M31/info'))
+        self.assertTrue(data['urls']['chart'].endswith('/deepskyobject/M31/chart'))
+
+    def test_detail_renders_description(self):
+        class Descr:
+            text = 'Nice **galaxy**, see [link](/x).'
+            common_name = 'Edge-on galaxy'
+            references = None
+
+        with patch.object(api_service, 'get_dso_descriptions_with_master_fallback', return_value=(Descr(), [('200/250', 'Faint.')], None)):
+            data = self._detail('NGC891', self._token('dso:read')).get_json()
+        self.assertEqual('Edge-on galaxy', data['commonName'])
+        self.assertIn('<strong>galaxy</strong>', data['descriptionHtml'])
+        self.assertIn('href="/x"', data['descriptionHtml'])
+        self.assertEqual([{'aperture': '200/250mm', 'html': '<p>Faint.</p>\n'}], data['apertureDescriptions'])
+        # dso:read alone doesn't expose personal data
+        self.assertIsNone(data['observed'])
+        self.assertIsNone(data['wishlist'])
+
+    def test_detail_errors(self):
+        self.assertEqual(401, self._detail('NGC891', {}).status_code)
+        self.assertEqual(403, self._detail('NGC891', self._token('wishlist:write')).status_code)
+        self.assertEqual(404, self._detail('NGC9999', self._token('dso:read')).status_code)
+        self.assertEqual(400, self.client.get('/api/v1/dso/detail', headers=self._token('dso:read')).status_code)
+
     def test_api_is_csrf_exempt(self):
         self.app.config['WTF_CSRF_ENABLED'] = True
         try:
