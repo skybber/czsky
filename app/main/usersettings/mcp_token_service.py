@@ -7,7 +7,7 @@ from typing import Any
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
-from app.models import McpOAuthRefreshTokenHistory, McpUserToken
+from app.models import McpOAuthRefreshTokenHistory, McpUserToken, User
 
 TOKEN_PREFIX = "czmcp_"
 DEFAULT_SCOPE = "wishlist:read"
@@ -173,6 +173,11 @@ def verify_user_mcp_token(
     if token_row.expires_date and token_row.expires_date < datetime.now():
         return None
     if not check_password_hash(token_row.token_hash, secret):
+        return None
+
+    # Tokens of disabled or deleted accounts are not revoked automatically, so the owner must be checked on every use.
+    owner = db.session.get(User, token_row.user_id)
+    if owner is None or not owner.is_active:
         return None
 
     token_scopes = set((token_row.scope or "").split())

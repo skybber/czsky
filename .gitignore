@@ -24,6 +24,7 @@ dump.rdb
 USNO-NOMAD-1e8.dat
 CometEls.txt
 *.bsp
+app.log
 czsky.log
 czsky.log.*
 /data/landscapes/
@@ -32,3 +33,4 @@ czsky.log.*
 #fchart3
 fchart3/
 /cometelements
+/data/NEA.txt

@@ -193,12 +193,15 @@ def _render_md(md_text: str | None, dso_name: str) -> str | None:
     return str(parse_extended_commonmark(md_text, dso_name, ''))
 
 
-def dso_detail_payload(user_id: int, name: Any, include_observed: bool, include_wishlist: bool) -> dict[str, Any] | None:
+def dso_detail_payload(user_id: int | None, name: Any, include_observed: bool, include_wishlist: bool) -> dict[str, Any] | None:
     """
     Detail of a DSO for the browser extension panel. Description HTML is rendered the same way as on the DSO info page;
     it contains site-relative links and is NOT sanitized, the client must sanitize it before inserting it into a page.
     Must be called within a request context (descriptions depend on the request language). Returns None if not found.
+    Without user_id (anonymous request) the observed/wishlist status is not included.
     """
+    if user_id is None:
+        include_observed = include_wishlist = False
     clean_name = _clean_name(name)
     if clean_name is None:
         raise ValueError('name must be a non-empty string')

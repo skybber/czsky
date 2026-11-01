@@ -8,6 +8,9 @@ from .api_service import dso_detail_payload, dso_status_payload, wishlist_add_pa
 
 main_api = Blueprint('main_api', __name__, url_prefix='/api/v1')
 
+# Largest request body accepted by the API: 500 names of max. 64 characters fit with plenty of room for JSON escaping.
+MAX_API_BODY_BYTES = 256 * 1024
+
 
 def _bearer_token():
     header = request.headers.get('Authorization', '')
@@ -21,13 +24,21 @@ def _error(message, status):
     return jsonify(error=message), status
 
 
-def token_required(*any_of_scopes):
-    """Authenticate request by user API (MCP) token. Token must have at least one of given scopes."""
+def token_required(*any_of_scopes, optional=False):
+    """
+    Authenticate request by user API (MCP) token. Token must have at least one of given scopes.
+    With optional=True a request without the Authorization header is served anonymously (g.api_user_id is None);
+    a token that is present must still be valid.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             raw_token = _bearer_token()
             if raw_token is None:
+                if optional and not request.headers.get('Authorization'):
+                    g.api_user_id = None
+                    g.api_scopes = set()
+                    return func(*args, **kwargs)
                 return _error('missing bearer token', 401)
             token_info = verify_user_mcp_token(raw_token)
             if token_info is None:
@@ -40,6 +51,21 @@ def token_required(*any_of_scopes):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+
+@main_api.before_request
+def _limit_body_size():
+    # Runs before authentication and JSON parsing.
+    request.max_content_length = MAX_API_BODY_BYTES
+    if request.content_length is not None:
+        if request.content_length > MAX_API_BODY_BYTES:
+            return _error('request body too large', 413)
+    elif request.method == 'POST':
+        # Body without Content-Length (chunked): Werkzeug reads at most max_content_length bytes and silently truncates the rest.
+        # A body that reaches the limit is therefore too large. The data stay cached for get_json().
+        if len(request.get_data(cache=True)) >= MAX_API_BODY_BYTES:
+            return _error('request body too large', 413)
+    return None
 
 
 @main_api.after_request
@@ -72,7 +98,7 @@ def dso_status():
 
 
 @main_api.route('/dso/detail', methods=['GET'])
-@token_required('dso:read', 'observed:read', 'wishlist:read')
+@token_required('dso:read', 'observed:read', 'wishlist:read', optional=True)
 def dso_detail():
     try:
         payload = dso_detail_payload(

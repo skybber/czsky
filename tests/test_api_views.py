@@ -1,3 +1,5 @@
+import io
+import json
 import threading
 import time
 import unittest
@@ -5,6 +7,7 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 from sqlalchemy import event
+from werkzeug.test import EnvironBuilder, run_wsgi_app
 
 from app import create_app, db
 from app.main.api import api_service
@@ -251,11 +254,72 @@ class ApiViewsTestCase(unittest.TestCase):
         self.assertIsNone(data['observed'])
         self.assertIsNone(data['wishlist'])
 
+    def test_detail_without_token(self):
+        self._observe(self.user, self.ngc891)
+        response = self._detail('NGC891', {})
+        self.assertEqual(200, response.status_code)
+        data = response.get_json()
+        self.assertEqual('NGC891', data['name'])
+        self.assertIsNone(data['observed'])
+        self.assertIsNone(data['wishlist'])
+        self.assertEqual(404, self._detail('NGC9999', {}).status_code)
+
     def test_detail_errors(self):
-        self.assertEqual(401, self._detail('NGC891', {}).status_code)
+        self.assertEqual(401, self._detail('NGC891', {'Authorization': 'Bearer czmcp_bad.token'}).status_code)
+        self.assertEqual(401, self._detail('NGC891', {'Authorization': 'Basic abc'}).status_code)
         self.assertEqual(403, self._detail('NGC891', self._token('wishlist:write')).status_code)
         self.assertEqual(404, self._detail('NGC9999', self._token('dso:read')).status_code)
         self.assertEqual(400, self.client.get('/api/v1/dso/detail', headers=self._token('dso:read')).status_code)
+
+    def test_disabled_or_deleted_user_token_is_rejected(self):
+        headers = self._token('observed:read wishlist:write')
+        self.assertEqual(200, self._status(['NGC891'], headers).status_code)
+
+        self.user.is_disabled = True
+        db.session.commit()
+        self.assertEqual(401, self._status(['NGC891'], headers).status_code)
+        response = self.client.post('/api/v1/wishlist/items', json={'name': 'NGC891'}, headers=headers)
+        self.assertEqual(401, response.status_code)
+        self.assertEqual(0, WishListItem.query.count())
+        # optional authentication: an invalid token is still rejected, not served anonymously
+        self.assertEqual(401, self._detail('NGC891', headers).status_code)
+
+        self.user.is_disabled = False
+        self.user.is_deleted = True
+        db.session.commit()
+        self.assertEqual(401, self._status(['NGC891'], headers).status_code)
+
+    def test_too_large_body_is_rejected(self):
+        headers = self._token('observed:read')
+        big = {'names': ['NGC891'], 'padding': 'x' * (300 * 1024)}
+        response = self._status(big['names'], headers)
+        self.assertEqual(200, response.status_code)
+        response = self.client.post('/api/v1/dso/status', json=big, headers=headers)
+        self.assertEqual(413, response.status_code)
+        # rejected before authentication, so even without a token
+        self.assertEqual(413, self.client.post('/api/v1/dso/status', json=big).status_code)
+
+    def test_too_large_chunked_body_is_rejected(self):
+        headers = dict(self._token('observed:read'))
+        headers['Content-Type'] = 'application/json'
+        payload = ('{"names": ["NGC891"], "padding": "' + 'x' * (300 * 1024) + '"}').encode()
+
+        def post_chunked(body):
+            # chunked transfer: no Content-Length, the server (e.g. gunicorn) marks the input as terminated.
+            # The WSGI app is called directly, because the test client would add Content-Length again.
+            builder = EnvironBuilder(path='/api/v1/dso/status', method='POST', input_stream=io.BytesIO(body), headers=headers)
+            environ = builder.get_environ()
+            environ.pop('CONTENT_LENGTH', None)
+            environ['wsgi.input_terminated'] = True
+            app_iter, status, _ = run_wsgi_app(self.app.wsgi_app, environ)
+            return int(status.split()[0]), json.loads(b''.join(app_iter))
+
+        status, body = post_chunked(payload)
+        self.assertEqual(413, status)
+        self.assertEqual('request body too large', body['error'])
+        status, body = post_chunked(b'{"names": ["NGC891"]}')
+        self.assertEqual(200, status)
+        self.assertIn('NGC891', body['objects'])
 
     def test_api_is_csrf_exempt(self):
         self.app.config['WTF_CSRF_ENABLED'] = True
